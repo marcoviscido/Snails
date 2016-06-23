@@ -1,41 +1,67 @@
 package it.unipg.studenti.ai.snails.utils;
 
 import android.graphics.Bitmap;
-import android.provider.ContactsContract;
-import android.support.annotation.NonNull;
-import android.widget.Toast;
 
-import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfFloat;
-import org.opencv.core.MatOfInt;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.features2d.Features2d;
 import org.opencv.imgproc.Imgproc;
-import org.opencv.features2d.FeatureDetector;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 
 
 /**
  * Created by Marco on 18/06/2016.
  */
 public class Helpers {
+
+    public static boolean isContourSquare(MatOfPoint thisContour) {
+
+        Rect ret = null;
+
+        MatOfPoint2f thisContour2f = new MatOfPoint2f();
+        MatOfPoint approxContour = new MatOfPoint();
+        MatOfPoint2f approxContour2f = new MatOfPoint2f();
+
+        thisContour.convertTo(thisContour2f, CvType.CV_32FC2);
+
+        Imgproc.approxPolyDP(thisContour2f, approxContour2f, 2, true);
+
+        approxContour2f.convertTo(approxContour, CvType.CV_32S);
+
+        if (approxContour.size().height == 4) {
+            ret = Imgproc.boundingRect(approxContour);
+        }
+
+        return (ret != null);
+    }
+
+    public static List<MatOfPoint> getSquareContours(List<MatOfPoint> contours) {
+
+        List<MatOfPoint> squares = null;
+
+        for (MatOfPoint c : contours) {
+
+            if (Helpers.isContourSquare(c))
+            {
+                if (squares == null)
+                    squares = new ArrayList<MatOfPoint>();
+                squares.add(c);
+            }
+        }
+
+        return squares;
+    }
+
     public static Mat findLargestRectangle(Mat original_image) {
         Mat imgProcess = new Mat();
         Point pone = new Point();
@@ -68,23 +94,65 @@ public class Helpers {
         original_image.copyTo(foreground, imgProcess);*/
 
 
+        Imgproc.cvtColor(original_image, imgProcess, Imgproc.COLOR_BGR2HSV);
+        Imgproc.GaussianBlur(imgProcess, imgProcess, new Size(0,0), 7, 7, 0);
 
-
-
-
-        Imgproc.cvtColor(original_image, imgProcess, Imgproc.COLOR_BGR2GRAY);
-        Imgproc.GaussianBlur(imgProcess, imgProcess, new Size(1, 1), 1);
+        java.util.List<Mat> hsvPlanes = new LinkedList<Mat>();
+        Core.split(imgProcess, hsvPlanes);
+        //Imgproc.GaussianBlur(imgProcess, imgProcess, new Size(1, 1), 1);
         //CANNY
-        Imgproc.Canny(imgProcess, imgProcess, 50 ,50);
+        //Imgproc.Canny(imgProcess, imgProcess, 50 ,50);
         //OTSU
         //Imgproc.threshold(imgProcess, imgProcess, 0, 255, Imgproc.THRESH_BINARY_INV + Imgproc.THRESH_OTSU);
+
+        //Imgproc.adaptiveThreshold(hsvPlanes.get(0), hsvPlanes.get(0), 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 5, 0);
+        //Imgproc.adaptiveThreshold(hsvPlanes.get(1), hsvPlanes.get(1), 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 5, 0);
+        Imgproc.adaptiveThreshold(hsvPlanes.get(2), hsvPlanes.get(2), 235, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 9, 0);
+
+        //Core.merge(hsvPlanes, imgProcess);
+
+        List<MatOfPoint> contours = new ArrayList<>();
+        Imgproc.findContours(hsvPlanes.get(2), contours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE, new Point(0, 0) );
+
+        List<MatOfPoint> squareContours = getSquareContours(contours);
+
+        double maxArea = -1;
+        int maxAreaIdx = -1;
+        //MatOfPoint temp_contour = contours.get(0); //the largest is at the index 0 for starting point
+        MatOfPoint temp_contour = squareContours.get(0); //the largest is at the index 0 for starting point
+        MatOfPoint2f approxCurve = new MatOfPoint2f();
+        MatOfPoint2f maxCurve = new MatOfPoint2f();
+        List<MatOfPoint> largest_contours = new ArrayList<MatOfPoint>();
+
+        for (int idx = 0; idx < contours.size(); idx++) {
+
+            temp_contour = contours.get(idx);
+            double contourarea = Imgproc.contourArea(temp_contour);
+            //compare this contour to the previous largest contour found
+            if (contourarea > maxArea) {
+                //check if this contour is a square
+                MatOfPoint2f new_mat = new MatOfPoint2f( temp_contour.toArray() );
+                int contourSize = (int)temp_contour.total();
+                Imgproc.approxPolyDP(new_mat, approxCurve, contourSize*0.05, true);
+
+                if (approxCurve.total() == 4) {
+                    maxCurve = approxCurve;
+                    maxArea = contourarea;
+                    maxAreaIdx = idx;
+                    largest_contours.add(temp_contour);
+                }
+
+            }
+        }
 
 
         //CERCA I CONTORNI
 
-        List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-        Imgproc.findContours(imgProcess, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+        //List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+        //Imgproc.findContours(hsvPlanes.get(2), contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 
+        //return hsvPlanes.get(2);
+/*
 
         double maxArea = -1;
         int maxAreaIdx = -1;
@@ -92,8 +160,6 @@ public class Helpers {
         MatOfPoint2f approxCurve = new MatOfPoint2f();
         MatOfPoint2f maxCurve = new MatOfPoint2f();
         List<MatOfPoint> largest_contours = new ArrayList<MatOfPoint>();
-
-
 
         for (int idx = 0; idx < contours.size(); idx++) {
 
@@ -122,14 +188,14 @@ public class Helpers {
         //Imgproc.drawContours(original_image, largest_contours, -1, new Scalar(0, 255, 0), 3); //will draw the largest square/rectangle
         //Imgproc.cvtColor(imgProcess, imgProcess, Imgproc.COLOR_BayerBG2RGB);
         //Imgproc.drawContours(original_image, largest_contours, -1, new Scalar(0, 255, 0), 3);
-
+        */
 
         double temp_double[] = maxCurve.get(0, 0);
         if(temp_double!=null) {
             Point p1 = new Point(temp_double[0], temp_double[1]);
             pone = p1;
             //Core.circle(new_image, new Point(p1.x, p1.y), 20, new Scalar(255, 0, 0), 5); //p1 is colored red
-            Imgproc.circle(new_image, new Point(p1.x, p1.y), 20, new Scalar(255, 0, 0), 5); //p1 is colored red
+            Imgproc.circle(original_image, new Point(p1.x, p1.y), 20, new Scalar(255, 0, 0), 5); //p1 is colored red
             //Imgproc.circle(original_image, new Point(p1.x, p1.y), 20, new Scalar(255, 0, 0), 5); //p1 is colored red
             //String temp_string = "Point 1: (" + p1.x + ", " + p1.y + ")";
         }
@@ -139,7 +205,7 @@ public class Helpers {
             Point p2 = new Point(temp_double[0], temp_double[1]);
             ptwo=p2;
             //Core.circle(new_image, new Point(p2.x, p2.y), 20, new Scalar(0, 255, 0), 5); //p2 is colored green
-            Imgproc.circle(new_image, new Point(p2.x, p2.y), 20, new Scalar(0, 255, 0), 5); //p2 is colored green
+            Imgproc.circle(original_image, new Point(p2.x, p2.y), 20, new Scalar(0, 255, 0), 5); //p2 is colored green
             //Imgproc.circle(original_image, new Point(p2.x, p2.y), 20, new Scalar(0, 255, 0), 5); //p2 is colored green
             //temp_string += "\nPoint 2: (" + p2.x + ", " + p2.y + ")";
         }
@@ -149,7 +215,7 @@ public class Helpers {
             Point p3 = new Point(temp_double[0], temp_double[1]);
             pthree=p3;
             //Core.circle(new_image, new Point(p3.x, p3.y), 20, new Scalar(0, 0, 255), 5); //p3 is colored blue
-            Imgproc.circle(new_image, new Point(p3.x, p3.y), 20, new Scalar(0, 0, 255), 5); //p3 is colored blue
+            Imgproc.circle(original_image, new Point(p3.x, p3.y), 20, new Scalar(0, 0, 255), 5); //p3 is colored blue
             //Imgproc.circle(original_image, new Point(p3.x, p3.y), 20, new Scalar(0, 0, 255), 5); //p3 is colored blue
             //temp_string += "\nPoint 3: (" + p3.x + ", " + p3.y + ")";
         }
@@ -159,7 +225,7 @@ public class Helpers {
             Point p4 = new Point(temp_double[0], temp_double[1]);
             pfour=p4;
             //Core.circle(new_image, new Point(p4.x, p4.y), 20, new Scalar(0, 255, 255), 5); //p1 is colored violet
-            Imgproc.circle(new_image, new Point(p4.x, p4.y), 20, new Scalar(0, 255, 255), 5); //p1 is colored violet
+            Imgproc.circle(original_image, new Point(p4.x, p4.y), 20, new Scalar(0, 255, 255), 5); //p1 is colored violet
             //Imgproc.circle(original_image, new Point(p4.x, p4.y), 20, new Scalar(0, 255, 255), 5); //p1 is colored violet
             //temp_string += "\nPoint 4: (" + p4.x + ", " + p4.y + ")";
         }
@@ -170,13 +236,14 @@ public class Helpers {
         //Rect rectCrop = new Rect((int)pone.x, (int)pone.y ,(int)(pthree.x-pone.x), (int)(pthree.y-pone.y));
         //Mat image_output= original_image.submat(rectCrop);
 
-        MatOfPoint mat = new MatOfPoint();
         Rect boundingRect = new Rect();
         for(int i=0; i<largest_contours.size(); i++) {
             boundingRect = Imgproc.boundingRect(largest_contours.get(i));
         }
-        Mat image_output= original_image.submat(boundingRect);
+        Mat image_output = original_image.submat(boundingRect);
 
+        //return original_image;
+        //return imgProcess;
         return image_output;
 
     }
