@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
@@ -18,12 +19,17 @@ import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+
+import it.unipg.studenti.ai.snails.utils.BlobDetection;
+import it.unipg.studenti.ai.snails.utils.Helpers;
 
 public class Step2 extends AppCompatActivity {
     SubsamplingScaleImageView imgView1;
     Mat imgToProcess;
     String filename;
     ProgressDialog progress;
+    int numberOfBlob;
 
 /*    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -67,7 +73,7 @@ public class Step2 extends AppCompatActivity {
                 if (f.exists()) {
                     bitmap = BitmapFactory.decodeFile(getFilesDir()+"/"+filename);
                     imgToProcess=new Mat();
-                    GreyScaleStep asyncTask = new GreyScaleStep();
+                    blobDetect asyncTask = new blobDetect();
                     asyncTask.execute(bitmap);
                 }
             } catch (Exception e) {
@@ -102,7 +108,7 @@ public class Step2 extends AppCompatActivity {
 
     }*/
 
-    private class GreyScaleStep extends AsyncTask<Bitmap, Void, Bitmap> {
+    private class blobDetect extends AsyncTask<Bitmap, Void, Bitmap> {
         protected void onPreExecute() {
             // Runs on the UI thread before doInBackground
             // Good for toggling visibility of a progress indicator
@@ -113,9 +119,12 @@ public class Step2 extends AppCompatActivity {
         protected Bitmap doInBackground(Bitmap... bitmaps) {
             // Some long-running task like downloading an image.
             Utils.bitmapToMat(bitmaps[0], imgToProcess);
-            Imgproc.cvtColor(imgToProcess, imgToProcess, Imgproc.COLOR_RGB2Luv);
-            Bitmap bmpOut = Bitmap.createBitmap(imgToProcess.cols(), imgToProcess.rows(), Bitmap.Config.ARGB_8888);
-            Utils.matToBitmap(imgToProcess, bmpOut);
+            ArrayList result = new ArrayList();
+            result = Helpers.findBlob(imgToProcess);
+            Mat imgProcessed = (Mat)result.get(0);
+            numberOfBlob = (int)result.get(1);
+            Bitmap bmpOut = Bitmap.createBitmap(imgProcessed.cols(), imgProcessed.rows(), Bitmap.Config.ARGB_8888);
+            Utils.matToBitmap(imgProcessed, bmpOut);
             return bmpOut;
         }
 
@@ -130,6 +139,8 @@ public class Step2 extends AppCompatActivity {
             // with access to the result of the long running task
             //progressBar.setVisibility(ProgressBar.INVISIBLE);
             imgView1.setImage(ImageSource.bitmap(result));
+            Toast.makeText(Step2.this,
+                    "TROVATI: " + numberOfBlob, Toast.LENGTH_LONG).show();
             try {
                 FileOutputStream fos = openFileOutput(filename, MODE_PRIVATE);
                 result.compress(Bitmap.CompressFormat.PNG, 100, fos);
