@@ -14,7 +14,7 @@
         android:id="@+id/button5"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Step3" >
+        android:text="STEP 3: FIND BLOB" >
     </Button><!-- android:onClick="loadImagefromGallery" -->
 
 

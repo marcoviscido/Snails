@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import it.unipg.studenti.ai.snails.utils.BlobDetection;
 import it.unipg.studenti.ai.snails.utils.Helpers;
 
-public class Step2 extends AppCompatActivity {
-    SubsamplingScaleImageView imgView1;
+public class Step3 extends AppCompatActivity {
+    SubsamplingScaleImageView imgView;
     Mat imgToProcess;
     String filename;
     ProgressDialog progress;
@@ -37,14 +37,14 @@ public class Step2 extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_step2);
+        setContentView(R.layout.activity_step3);
 
         progress = new ProgressDialog(this);
         progress.setTitle("Loading");
         progress.setMessage("Wait while loading...");
 
         Button btnAvanti = (Button)findViewById(R.id.button5);
-        imgView1 = (SubsamplingScaleImageView)findViewById(R.id.imageViewStep2);
+        imgView = (SubsamplingScaleImageView)findViewById(R.id.imageViewStep3);
 
         Bundle bd = getIntent().getExtras();
         if(bd != null)
@@ -56,7 +56,7 @@ public class Step2 extends AppCompatActivity {
                 if (f.exists()) {
                     bitmap = BitmapFactory.decodeFile(getFilesDir()+"/"+filename);
                     imgToProcess=new Mat();
-                    cropArea asyncTask = new cropArea();
+                    blobDetection asyncTask = new blobDetection();
                     asyncTask.execute(bitmap);
                 }
             } catch (Exception e) {
@@ -66,21 +66,21 @@ public class Step2 extends AppCompatActivity {
         }
 
 
-        btnAvanti.setOnClickListener(new View.OnClickListener() {
+       /* btnAvanti.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Step2.this, Step3.class);
                 intent.putExtra("filename", filename );
                 startActivity(intent);
             }
-        });
+        });*/
 
 
     }
 
 
 
-    private class cropArea extends AsyncTask<Bitmap, Void, Bitmap> {
+    private class blobDetection extends AsyncTask<Bitmap, Void, Bitmap> {
         protected void onPreExecute() {
             // Runs on the UI thread before doInBackground
             // Good for toggling visibility of a progress indicator
@@ -91,11 +91,10 @@ public class Step2 extends AppCompatActivity {
         protected Bitmap doInBackground(Bitmap... bitmaps) {
             // Some long-running task like downloading an image.
             Utils.bitmapToMat(bitmaps[0], imgToProcess);
-            //ArrayList result = new ArrayList();
-            //result = Helpers.findBlob(imgToProcess);
-            //Mat imgProcessed = (Mat)result.get(0);
-            //numberOfBlob = (int)result.get(1);
-            imgToProcess = Helpers.cropArea(imgToProcess);
+            ArrayList result = new ArrayList();
+            result = Helpers.findBlob(imgToProcess);
+            imgToProcess = (Mat)result.get(0);
+            numberOfBlob = (int)result.get(1);
             Bitmap bmpOut = Bitmap.createBitmap(imgToProcess.cols(), imgToProcess.rows(), Bitmap.Config.ARGB_8888);
             Utils.matToBitmap(imgToProcess, bmpOut);
             return bmpOut;
@@ -111,7 +110,7 @@ public class Step2 extends AppCompatActivity {
             // This method is executed in the UIThread
             // with access to the result of the long running task
             //progressBar.setVisibility(ProgressBar.INVISIBLE);
-            imgView1.setImage(ImageSource.bitmap(result));
+            imgView.setImage(ImageSource.bitmap(result));
             try {
                 FileOutputStream fos = openFileOutput(filename, MODE_PRIVATE);
                 result.compress(Bitmap.CompressFormat.PNG, 100, fos);

@@ -20,10 +20,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-/**
- * Created by Marco on 18/06/2016.
- */
+
 public class Helpers {
+
+    static Point p1 = new Point();
+    static Point p2 = new Point();
+    static Point p3 = new Point();
+    static Point p4 = new Point();
 
     public static boolean isContourSquare(MatOfPoint thisContour) {
 
@@ -65,10 +68,7 @@ public class Helpers {
 
     public static Mat findLargestRectangle(Mat original_image) {
         Mat imgProcess = new Mat();
-        Point p1 = new Point();
-        Point p2 = new Point();
-        Point p3 = new Point();
-        Point p4 = new Point();
+
 
         Imgproc.cvtColor(original_image, imgProcess, Imgproc.COLOR_BGR2HSV);
         Imgproc.GaussianBlur(imgProcess, imgProcess, new Size(0,0), 7, 7, 0);
@@ -113,32 +113,43 @@ public class Helpers {
         }
 
 
+
         double temp_double[] = maxCurve.get(0, 0);
         if(temp_double!=null) {
             p1 = new Point(temp_double[0], temp_double[1]);
-            Imgproc.circle(original_image, new Point(p1.x, p1.y), 20, new Scalar(255, 0, 0), 5); //p1 is colored red
+            Imgproc.circle(original_image, new Point(p1.x, p1.y), 5, new Scalar(255, 0, 0), 5); //p1 is colored red
         }
 
         temp_double = maxCurve.get(1, 0);
         if(temp_double!=null) {
             p2 = new Point(temp_double[0], temp_double[1]);
-            Imgproc.circle(original_image, new Point(p2.x, p2.y), 20, new Scalar(0, 255, 0), 5); //p2 is colored green
+            Imgproc.circle(original_image, new Point(p2.x, p2.y), 5, new Scalar(0, 255, 0), 5); //p2 is colored green
         }
 
         temp_double = maxCurve.get(2, 0);
         if(temp_double!=null) {
             p3 = new Point(temp_double[0], temp_double[1]);
-            Imgproc.circle(original_image, new Point(p3.x, p3.y), 20, new Scalar(0, 0, 255), 5); //p3 is colored blue
+            Imgproc.circle(original_image, new Point(p3.x, p3.y), 5, new Scalar(0, 0, 255), 5); //p3 is colored blue
         }
 
         temp_double = maxCurve.get(3, 0);
         if(temp_double!=null) {
             p4 = new Point(temp_double[0], temp_double[1]);
-            Imgproc.circle(original_image, new Point(p4.x, p4.y), 20, new Scalar(0, 255, 255), 5); //p1 is colored violet
+            Imgproc.circle(original_image, new Point(p4.x, p4.y), 5, new Scalar(0, 255, 255), 5); //p1 is colored violet
         }
 
+        System.out.println("PUNTI" + p1+p2);
+        return original_image;
 
-       //TAGLIARE IL RETTANGOLO
+    }
+
+
+
+
+    public static Mat cropArea(Mat original_image) {
+
+
+        //TAGLIARE IL RETTANGOLO
         Mat mask = new Mat(original_image.rows(), original_image.cols(), CvType.CV_8UC1);
         for(int i=0; i<mask.cols(); i++)
             for(int j=0; j<mask.rows(); j++)
@@ -148,7 +159,7 @@ public class Helpers {
         MatOfPoint2f ROI_Poly = new MatOfPoint2f();
         MatOfPoint2f Vertices = new MatOfPoint2f(p1,p2,p3,p4);
         Imgproc.approxPolyDP(new MatOfPoint2f(p1,p2,p3,p4), ROI_Poly, 1.0, true);
-        
+
         // Fill polygon white
         MatOfPoint RP = new MatOfPoint();
         ROI_Poly.convertTo(RP, CvType.CV_32S);
@@ -161,10 +172,9 @@ public class Helpers {
         original_image.copyTo(imageDest, mask);
 
         return imageDest;
-
-
-
     }
+
+
 
     public static ArrayList findBlob(Mat original_image) {
         Mat imgProcess = new Mat();

@@ -5,17 +5,16 @@
     android:orientation="vertical" >
 
     <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-        android:id="@+id/imageView"
+        android:id="@+id/imageViewStep3"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="10" />
 
     <Button
-        android:id="@+id/button4"
+        android:id="@+id/button6"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="STEP 2 : CROP AREA" >
+        android:text="Step4" >
     </Button><!-- android:onClick="loadImagefromGallery" -->
 
 

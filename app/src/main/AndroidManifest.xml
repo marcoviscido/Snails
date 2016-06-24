@@ -20,7 +20,8 @@
         </activity>
         <activity android:name=".Photo" />
         <activity android:name=".Step1" />
-        <activity android:name=".Step2"></activity>
+        <activity android:name=".Step2" />
+        <activity android:name=".Step3"></activity>
     </application>
 
 </manifest>

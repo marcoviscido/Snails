@@ -23,7 +23,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
 
-        android:text="Start Elaboration"
+        android:text="STEP 1 : FIND AREA"
         android:id="@+id/button3"/>
 
 </LinearLayout>
