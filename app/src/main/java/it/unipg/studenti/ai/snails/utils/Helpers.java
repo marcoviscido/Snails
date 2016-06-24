@@ -12,6 +12,7 @@ import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
@@ -136,36 +137,33 @@ public class Helpers {
             Imgproc.circle(original_image, new Point(p4.x, p4.y), 20, new Scalar(0, 255, 255), 5); //p1 is colored violet
         }
 
-        Rect boundingRect = new Rect();
-        for(int i=0; i<largest_contours.size(); i++) {
-            boundingRect = Imgproc.boundingRect(largest_contours.get(i));
-        }
 
-        Mat src = original_image.submat(boundingRect);
-        Mat mask = new Mat(src.rows(), src.cols(), CvType.CV_8UC1);
-
-        // Create black image with the same size as the original
+       //TAGLIARE IL RETTANGOLO
+        Mat mask = new Mat(original_image.rows(), original_image.cols(), CvType.CV_8UC1);
         for(int i=0; i<mask.cols(); i++)
             for(int j=0; j<mask.rows(); j++)
                 mask.put(j, i, 0);
 
         // Create Polygon from vertices
         MatOfPoint2f ROI_Poly = new MatOfPoint2f();
-        MatOfPoint RP = new MatOfPoint();
-        Imgproc.approxPolyDP(new MatOfPoint2f(p1, p2, p3, p4), ROI_Poly, 1.0, true);
-
-        ROI_Poly.convertTo(RP, CvType.CV_32S); // Passare da MatOfPoint2f a MatOfPoint
-
+        MatOfPoint2f Vertices = new MatOfPoint2f(p1,p2,p3,p4);
+        Imgproc.approxPolyDP(new MatOfPoint2f(p1,p2,p3,p4), ROI_Poly, 1.0, true);
+        
         // Fill polygon white
+        MatOfPoint RP = new MatOfPoint();
+        ROI_Poly.convertTo(RP, CvType.CV_32S);
         Imgproc.fillConvexPoly(mask, RP, new Scalar(255, 255, 255), 8, 0);
 
         // Create new image for result storage
-        Mat imageDest = new Mat(src.rows(), src.cols(), CvType.CV_8UC1);
+        Mat imageDest = new Mat(original_image.rows(), original_image.cols(), CvType.CV_8UC1);
 
         // Cut out ROI and store it in imageDest
-        src.copyTo(imageDest, mask);
+        original_image.copyTo(imageDest, mask);
 
         return imageDest;
+
+
+
     }
 
     public static ArrayList findBlob(Mat original_image) {
