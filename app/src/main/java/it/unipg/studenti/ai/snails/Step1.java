@@ -110,9 +110,9 @@ public class Step1 extends AppCompatActivity {
             Bitmap bmp = BitmapFactory.decodeFile(strings[0]);
             Utils.bitmapToMat(bmp, imgToProcess);
             Mat imgProcessed = Helpers.findLargestRectangle(imgToProcess);
-                Bitmap bmpOut = Bitmap.createBitmap(imgProcessed.cols(), imgProcessed.rows(), Bitmap.Config.ARGB_8888);
-                Utils.matToBitmap(imgProcessed, bmpOut);
-                return bmpOut;
+            Bitmap bmpOut = Bitmap.createBitmap(imgProcessed.cols(), imgProcessed.rows(), Bitmap.Config.ARGB_8888);
+            Utils.matToBitmap(imgProcessed, bmpOut);
+            return bmpOut;
         }
 
         protected void onProgressUpdate() {
