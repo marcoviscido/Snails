@@ -5,13 +5,16 @@ import android.graphics.Bitmap;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
+import org.opencv.core.KeyPoint;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfKeyPoint;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.features2d.FeatureDetector;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -179,18 +182,29 @@ public class Helpers {
     public static ArrayList findBlob(Mat original_image) {
         Mat imgProcess = new Mat();
         Imgproc.cvtColor(original_image, imgProcess, Imgproc.COLOR_BGR2GRAY);
-        Imgproc.GaussianBlur(imgProcess, imgProcess, new Size(1, 1), 1);
+        Imgproc.GaussianBlur(imgProcess, imgProcess, new Size(13, 13), 50);
         Imgproc.threshold(imgProcess, imgProcess, 0, 255, Imgproc.THRESH_BINARY + Imgproc.THRESH_OTSU);
 
-        Bitmap bmpOut = Bitmap.createBitmap(imgProcess.cols(), imgProcess.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(imgProcess, bmpOut);
-        BlobDetection b = new BlobDetection(bmpOut);
-        bmpOut = b.getBlob(bmpOut);
-        Utils.bitmapToMat(bmpOut, imgProcess);
+        /*int erosion_size = 0;
+        Mat element = Imgproc.getStructuringElement( Imgproc.CV_SHAPE_ELLIPSE, new Size(2*erosion_size + 1, 2*erosion_size+1 ), new Point( erosion_size, erosion_size ) );
+        Imgproc.erode(imgProcess, imgProcess, element);*/
+
+        //Imgproc.GaussianBlur(imgProcess, imgProcess, new Size(15, 15), 50);
+
+        MatOfKeyPoint keyPoints = new MatOfKeyPoint();
+        FeatureDetector fd = FeatureDetector.create(FeatureDetector.SIMPLEBLOB);
+        //fd.write("/mnt/sdcard/download/sbd.params.xml");
+        fd.read("/mnt/sdcard/download/sbd.params.xml");
+        fd.detect(imgProcess, keyPoints);
+
+        for (KeyPoint k: keyPoints.toList()) {
+            Imgproc.circle(original_image, new Point(k.pt.x, k.pt.y), 1, new Scalar(0, 255, 0), 3); //p1 is colored violet
+            Imgproc.circle(imgProcess, new Point(k.pt.x, k.pt.y), 1, new Scalar(255, 0, 0), 3); //p1 is colored violet
+        }
 
         ArrayList result = new ArrayList();
         result.add(imgProcess);
-        result.add(b.getNumber());
+        result.add(keyPoints.rows());
         return result;
     }
 }

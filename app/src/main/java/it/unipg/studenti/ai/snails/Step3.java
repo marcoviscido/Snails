@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
@@ -31,8 +32,7 @@ public class Step3 extends AppCompatActivity {
     String filename;
     ProgressDialog progress;
     int numberOfBlob;
-
-
+    TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +45,8 @@ public class Step3 extends AppCompatActivity {
 
         Button btnAvanti = (Button)findViewById(R.id.button5);
         imgView = (SubsamplingScaleImageView)findViewById(R.id.imageViewStep3);
+
+        textView = (TextView)findViewById(R.id.textView);
 
         Bundle bd = getIntent().getExtras();
         if(bd != null)
@@ -91,7 +93,7 @@ public class Step3 extends AppCompatActivity {
         protected Bitmap doInBackground(Bitmap... bitmaps) {
             // Some long-running task like downloading an image.
             Utils.bitmapToMat(bitmaps[0], imgToProcess);
-            ArrayList result = new ArrayList();
+            ArrayList result;
             result = Helpers.findBlob(imgToProcess);
             imgToProcess = (Mat)result.get(0);
             numberOfBlob = (int)result.get(1);
@@ -110,6 +112,7 @@ public class Step3 extends AppCompatActivity {
             // This method is executed in the UIThread
             // with access to the result of the long running task
             //progressBar.setVisibility(ProgressBar.INVISIBLE);
+            textView.setText("Blob trovati: "+numberOfBlob);
             imgView.setImage(ImageSource.bitmap(result));
             try {
                 FileOutputStream fos = openFileOutput(filename, MODE_PRIVATE);
