@@ -111,7 +111,6 @@ public class Helpers {
                     maxArea = contourarea;
                     largest_contours.add(temp_contour);
                 }
-
             }
         }
 
@@ -182,12 +181,13 @@ public class Helpers {
     public static ArrayList findBlob(Mat original_image) {
         Mat imgProcess = new Mat();
         Imgproc.cvtColor(original_image, imgProcess, Imgproc.COLOR_BGR2GRAY);
-        Imgproc.GaussianBlur(imgProcess, imgProcess, new Size(13, 13), 50);
+
+        Imgproc.GaussianBlur(imgProcess, imgProcess, new Size(9, 9), 13);
         Imgproc.threshold(imgProcess, imgProcess, 0, 255, Imgproc.THRESH_BINARY + Imgproc.THRESH_OTSU);
 
-        /*int erosion_size = 0;
-        Mat element = Imgproc.getStructuringElement( Imgproc.CV_SHAPE_ELLIPSE, new Size(2*erosion_size + 1, 2*erosion_size+1 ), new Point( erosion_size, erosion_size ) );
-        Imgproc.erode(imgProcess, imgProcess, element);*/
+        int the_size = 3;
+        Mat element = Imgproc.getStructuringElement( Imgproc.CV_SHAPE_ELLIPSE, new Size(2*the_size + 1, 2*the_size+1 ), new Point( the_size, the_size ) );
+        Imgproc.dilate(imgProcess, imgProcess, element);
 
         //Imgproc.GaussianBlur(imgProcess, imgProcess, new Size(15, 15), 50);
 
@@ -205,6 +205,7 @@ public class Helpers {
         ArrayList result = new ArrayList();
         result.add(imgProcess);
         result.add(keyPoints.rows());
+        result.add(original_image);
         return result;
     }
 }
