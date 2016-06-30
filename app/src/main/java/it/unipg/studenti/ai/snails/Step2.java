@@ -9,20 +9,16 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
-import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
 
-import it.unipg.studenti.ai.snails.utils.BlobDetection;
 import it.unipg.studenti.ai.snails.utils.Helpers;
 
 public class Step2 extends AppCompatActivity {

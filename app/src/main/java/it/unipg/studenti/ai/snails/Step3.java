@@ -1,7 +1,6 @@
 package it.unipg.studenti.ai.snails;
 
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -19,16 +18,14 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
-import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 
-import it.unipg.studenti.ai.snails.utils.BlobDetection;
 import it.unipg.studenti.ai.snails.utils.Helpers;
 
 public class Step3 extends AppCompatActivity {
+    AsyncTask asyncTask;
     SubsamplingScaleImageView imgViewElab;
     SubsamplingScaleImageView imgViewOrig;
     Mat imgToProcess;
@@ -48,47 +45,19 @@ public class Step3 extends AppCompatActivity {
         progress.setTitle("Loading");
         progress.setMessage("Wait while loading...");
 
-        Button btnAvanti = (Button)findViewById(R.id.button5);
         imgViewElab = (SubsamplingScaleImageView)findViewById(R.id.imageViewStep3);
         imgViewOrig = (SubsamplingScaleImageView)findViewById(R.id.imageViewStepOrig);
-
         textView = (TextView)findViewById(R.id.textView);
+
+        Button btnRefresh = (Button)findViewById(R.id.buttonRefresh);
+        btnRefresh.setVisibility(View.INVISIBLE);
+
         aSwitch = (Switch)findViewById(R.id.switch1);
         aSwitch.setVisibility(View.INVISIBLE);
-
-        Bundle bd = getIntent().getExtras();
-        if(bd != null)
-        {
-            filename = (String) bd.get("filename");
-            Bitmap bitmap = null;
-            try {
-                File f = new File(getFilesDir()+"/"+filename);
-                if (f.exists()) {
-                    bitmap = BitmapFactory.decodeFile(getFilesDir()+"/"+filename);
-                    imgToProcess=new Mat();
-                    blobDetection asyncTask = new blobDetection();
-                    asyncTask.execute(bitmap);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
-
-
-       /* btnAvanti.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Step2.this, Step3.class);
-                intent.putExtra("filename", filename );
-                startActivity(intent);
-            }
-        });*/
-
         aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
+                if(!isChecked){
                     imgViewElab.setVisibility(View.INVISIBLE);
                     imgViewOrig.setVisibility(View.VISIBLE);
                 } else {
@@ -98,10 +67,44 @@ public class Step3 extends AppCompatActivity {
             }
         });
 
+        Bundle bd = getIntent().getExtras();
+        if(bd != null)
+        {
+            filename = (String) bd.get("filename");
+            filename = getFilesDir()+"/"+ filename;
 
+            Bitmap bitmap;
+            try {
+                File f = new File(filename);
+                if (f.exists()) {
+                    bitmap = BitmapFactory.decodeFile(filename);
+                    imgToProcess=new Mat();
+                    asyncTask = new blobDetection().execute(bitmap);
+                    btnRefresh.setVisibility(View.VISIBLE);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            btnRefresh.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Bitmap bitmap;
+                    try {
+                        File f = new File(filename);
+                        if (f.exists()) {
+                            bitmap = BitmapFactory.decodeFile(filename);
+                            //imgToProcess=new Mat();
+                            asyncTask = new blobDetection().execute(bitmap);
+                            //btnRefresh.setVisibility(View.VISIBLE);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
     }
-
-
 
     private class blobDetection extends AsyncTask<Bitmap, Void, Bitmap> {
         protected void onPreExecute() {
@@ -116,11 +119,12 @@ public class Step3 extends AppCompatActivity {
             Utils.bitmapToMat(bitmaps[0], imgToProcess);
             ArrayList result;
             result = Helpers.findBlob(imgToProcess);
-            imgToProcess = (Mat)result.get(0);
+            Mat imgProcessed = (Mat)result.get(0);
+            //imgToProcess = (Mat)result.get(0);
             numberOfBlob = (int)result.get(1);
             Mat imgOrig = (Mat)result.get(2);
-            Bitmap bmpOut = Bitmap.createBitmap(imgToProcess.cols(), imgToProcess.rows(), Bitmap.Config.ARGB_8888);
-            Utils.matToBitmap(imgToProcess, bmpOut);
+            Bitmap bmpOut = Bitmap.createBitmap(imgProcessed.cols(), imgProcessed.rows(), Bitmap.Config.ARGB_8888);
+            Utils.matToBitmap(imgProcessed, bmpOut);
             bmpImgOrig = Bitmap.createBitmap(imgOrig.cols(), imgOrig.rows(), Bitmap.Config.ARGB_8888);
             Utils.matToBitmap(imgOrig, bmpImgOrig);
             return bmpOut;
@@ -136,18 +140,19 @@ public class Step3 extends AppCompatActivity {
             // This method is executed in the UIThread
             // with access to the result of the long running task
             //progressBar.setVisibility(ProgressBar.INVISIBLE);
+            Toast.makeText(Step3.this, "done!", Toast.LENGTH_SHORT).show();
             textView.setText("Blob trovati: "+numberOfBlob);
             imgViewOrig.setImage(ImageSource.bitmap(bmpImgOrig));
             imgViewElab.setImage(ImageSource.bitmap(result));
             aSwitch.setVisibility(View.VISIBLE);
-            try {
+            /*try {
                 FileOutputStream fos = openFileOutput(filename, MODE_PRIVATE);
                 result.compress(Bitmap.CompressFormat.PNG, 100, fos);
                 fos.flush();
                 fos.close();
             } catch (Exception e) {
                 e.printStackTrace();
-            }
+            }*/
             // Hide the progress bar
             progress.dismiss();
         }

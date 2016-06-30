@@ -182,24 +182,26 @@ public class Helpers {
         Mat imgProcess = new Mat();
         Imgproc.cvtColor(original_image, imgProcess, Imgproc.COLOR_BGR2GRAY);
 
-        Imgproc.GaussianBlur(imgProcess, imgProcess, new Size(9, 9), 13);
-        Imgproc.threshold(imgProcess, imgProcess, 0, 255, Imgproc.THRESH_BINARY + Imgproc.THRESH_OTSU);
+        //Imgproc.GaussianBlur(imgProcess, imgProcess, new Size(9, 9), 13);
+        //Imgproc.threshold(imgProcess, imgProcess, 0, 255, Imgproc.THRESH_BINARY + Imgproc.THRESH_OTSU);
 
-        int the_size = 3;
+        /*int the_size = 3;
         Mat element = Imgproc.getStructuringElement( Imgproc.CV_SHAPE_ELLIPSE, new Size(2*the_size + 1, 2*the_size+1 ), new Point( the_size, the_size ) );
-        Imgproc.dilate(imgProcess, imgProcess, element);
+        Imgproc.dilate(imgProcess, imgProcess, element);*/
 
         //Imgproc.GaussianBlur(imgProcess, imgProcess, new Size(15, 15), 50);
 
         MatOfKeyPoint keyPoints = new MatOfKeyPoint();
         FeatureDetector fd = FeatureDetector.create(FeatureDetector.SIMPLEBLOB);
-        //fd.write("/mnt/sdcard/download/sbd.params.xml");
-        fd.read("/mnt/sdcard/download/sbd.params.xml");
+        //fd.write("/mnt/shared/android_shared/sbd.params.xml");
+        fd.read("/mnt/shared/android_shared/sbd.params.xml");
         fd.detect(imgProcess, keyPoints);
 
         for (KeyPoint k: keyPoints.toList()) {
-            Imgproc.circle(original_image, new Point(k.pt.x, k.pt.y), 1, new Scalar(0, 255, 0), 3); //p1 is colored violet
-            Imgproc.circle(imgProcess, new Point(k.pt.x, k.pt.y), 1, new Scalar(255, 0, 0), 3); //p1 is colored violet
+            Imgproc.circle(original_image, new Point(k.pt.x, k.pt.y), 1, new Scalar(0, 255, 0), 2); //p1 is colored violet
+            Imgproc.circle(original_image, new Point(k.pt.x, k.pt.y), 3, new Scalar(0, 255, 0), 1); //p1 is colored violet
+            Imgproc.circle(imgProcess, new Point(k.pt.x, k.pt.y), 1, new Scalar(255, 0, 0), 2); //p1 is colored violet
+            Imgproc.circle(imgProcess, new Point(k.pt.x, k.pt.y), 3, new Scalar(255, 0, 0), 1); //p1 is colored violet
         }
 
         ArrayList result = new ArrayList();

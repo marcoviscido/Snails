@@ -48,11 +48,11 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/button6"
+        android:id="@+id/buttonRefresh"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Step4"
+        android:text="REFRESH"
         android:layout_gravity="bottom|center_horizontal">
     </Button>
 

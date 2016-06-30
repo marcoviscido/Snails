@@ -6,7 +6,7 @@ import java.util.List;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 
-public class BlobDetection {
+public class BlobDetectionOld {
 
 	private byte[][] COLOUR_ARRAY = {{(byte)103, (byte)121, (byte)255},
 			{(byte)249, (byte)255, (byte)139},
@@ -53,7 +53,7 @@ public class BlobDetection {
 		return blobList.size();
 	}
 	
-	public BlobDetection(Bitmap bitmap) {
+	public BlobDetectionOld(Bitmap bitmap) {
 		int width = bitmap.getWidth();
 		int height = bitmap.getHeight();
 		this.width = width;
