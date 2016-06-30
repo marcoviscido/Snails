@@ -1,6 +1,7 @@
 package it.unipg.studenti.ai.snails.utils;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
@@ -11,6 +12,7 @@ import org.opencv.core.MatOfKeyPoint;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
+import org.opencv.core.Range;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -87,10 +89,10 @@ public class Helpers {
         List<MatOfPoint> contours = new ArrayList<>();
         Imgproc.findContours(hsvPlanes.get(2), contours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE, new Point(0, 0) );
 
-        List<MatOfPoint> squareContours = getSquareContours(contours);
+        //List<MatOfPoint> squareContours = getSquareContours(contours);
 
         double maxArea = -1;
-        MatOfPoint temp_contour = squareContours.get(0); //the largest is at the index 0 for starting point
+        MatOfPoint temp_contour;// = squareContours.get(0); //the largest is at the index 0 for starting point
         MatOfPoint2f approxCurve = new MatOfPoint2f();
         MatOfPoint2f maxCurve = new MatOfPoint2f();
         List<MatOfPoint> largest_contours = new ArrayList<MatOfPoint>();
@@ -182,31 +184,70 @@ public class Helpers {
         Mat imgProcess = new Mat();
         Imgproc.cvtColor(original_image, imgProcess, Imgproc.COLOR_BGR2GRAY);
 
-        //Imgproc.GaussianBlur(imgProcess, imgProcess, new Size(9, 9), 13);
-        //Imgproc.threshold(imgProcess, imgProcess, 0, 255, Imgproc.THRESH_BINARY + Imgproc.THRESH_OTSU);
+        Imgproc.GaussianBlur(imgProcess, imgProcess, new Size(11, 11), 33);
 
-        /*int the_size = 3;
+        Imgproc.threshold(imgProcess, imgProcess, 0, 255, Imgproc.THRESH_BINARY + Imgproc.THRESH_OTSU);
+
+        int the_size = 2;
         Mat element = Imgproc.getStructuringElement( Imgproc.CV_SHAPE_ELLIPSE, new Size(2*the_size + 1, 2*the_size+1 ), new Point( the_size, the_size ) );
-        Imgproc.dilate(imgProcess, imgProcess, element);*/
+        for(int v = 0; v < 3; v++) {
+            Imgproc.dilate(imgProcess, imgProcess, element);
+        }
 
         //Imgproc.GaussianBlur(imgProcess, imgProcess, new Size(15, 15), 50);
 
-        MatOfKeyPoint keyPoints = new MatOfKeyPoint();
-        FeatureDetector fd = FeatureDetector.create(FeatureDetector.SIMPLEBLOB);
+        MatOfKeyPoint keyPointsUnder6000 = new MatOfKeyPoint();
+        FeatureDetector fd1 = FeatureDetector.create(FeatureDetector.SIMPLEBLOB);
         //fd.write("/mnt/shared/android_shared/sbd.params.xml");
-        fd.read("/mnt/shared/android_shared/sbd.params.xml");
-        fd.detect(imgProcess, keyPoints);
+        //fd.read("/mnt/shared/android_shared/sbd.params.xml");
+        fd1.read("/mnt/sdcard/download/sbd.params.U6K.xml");
+        fd1.detect(imgProcess, keyPointsUnder6000);
+        List<KeyPoint> listPointsUnder6000 = keyPointsUnder6000.toList();
 
-        for (KeyPoint k: keyPoints.toList()) {
-            Imgproc.circle(original_image, new Point(k.pt.x, k.pt.y), 1, new Scalar(0, 255, 0), 2); //p1 is colored violet
-            Imgproc.circle(original_image, new Point(k.pt.x, k.pt.y), 3, new Scalar(0, 255, 0), 1); //p1 is colored violet
-            Imgproc.circle(imgProcess, new Point(k.pt.x, k.pt.y), 1, new Scalar(255, 0, 0), 2); //p1 is colored violet
-            Imgproc.circle(imgProcess, new Point(k.pt.x, k.pt.y), 3, new Scalar(255, 0, 0), 1); //p1 is colored violet
+        MatOfKeyPoint keyPointsOver6000 = new MatOfKeyPoint();
+        FeatureDetector fd2 = FeatureDetector.create(FeatureDetector.SIMPLEBLOB);
+        fd2.read("/mnt/sdcard/download/sbd.params.O6K.xml");
+        fd2.detect(imgProcess, keyPointsOver6000);
+        List<KeyPoint> listPointsOver6000 = keyPointsOver6000.toList();
+
+        for (KeyPoint k : listPointsOver6000) {
+            int radius = (int)Math.sqrt(k.size / Math.PI)*35;
+            Rect r = new Rect(new Point(k.pt.x-(radius/2), k.pt.y-(radius/2)), new Size(radius, radius));
+            Mat m = new Mat(imgProcess, r);
+            the_size = 2;
+            element = Imgproc.getStructuringElement( Imgproc.CV_SHAPE_ELLIPSE, new Size(2*the_size + 1, 2*the_size+1 ), new Point( the_size, the_size ) );
+            for(int v = 0; v < 10; v++) {
+                Imgproc.dilate(m, m, element);
+            }
+            //m.copyTo(imgProcess, new Mat());
         }
+
+        MatOfKeyPoint keyPointsUltimi = new MatOfKeyPoint();
+        fd1.detect(imgProcess, keyPointsUltimi);
+        List<KeyPoint> listkeyPointsUltimi = keyPointsUltimi.toList();
+        //listkeyPointsUltimi.removeAll(listPointsUnder6000);
+
+        /*for (KeyPoint k:listPointsUnder6000) {
+            int radius = (int)Math.sqrt(k.size / Math.PI);
+            Imgproc.circle(original_image, new Point(k.pt.x, k.pt.y), 1, new Scalar(0, 255, 0), 1); //p1 is colored violet
+            Imgproc.circle(original_image, new Point(k.pt.x, k.pt.y), radius*10, new Scalar(0, 255, 0), 1);
+
+            Imgproc.circle(imgProcess    , new Point(k.pt.x, k.pt.y), 1, new Scalar(255, 255, 255), 1); //p1 is colored violet
+            Imgproc.circle(imgProcess    , new Point(k.pt.x, k.pt.y), radius*10, new Scalar(0, 0, 0), 1); //p1 is colored violet
+        }*/
+        for (KeyPoint k:listkeyPointsUltimi) {
+            int radius = (int)Math.sqrt(k.size / Math.PI)*10;
+            Imgproc.circle(original_image, new Point(k.pt.x, k.pt.y), 1, new Scalar(255, 255, 255), 1); //p1 is colored violet
+            Imgproc.circle(original_image, new Point(k.pt.x, k.pt.y), radius, new Scalar(255, 255, 255), 1);
+
+            Imgproc.circle(imgProcess    , new Point(k.pt.x, k.pt.y), 1, new Scalar(255, 255, 255), 1); //p1 is colored violet
+            Imgproc.circle(imgProcess    , new Point(k.pt.x, k.pt.y), radius, new Scalar(0, 0, 0), 1); //p1 is colored violet
+        }
+
 
         ArrayList result = new ArrayList();
         result.add(imgProcess);
-        result.add(keyPoints.rows());
+        result.add(keyPointsUltimi.rows());
         result.add(original_image);
         return result;
     }
