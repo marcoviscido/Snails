@@ -117,17 +117,17 @@ public class Step3 extends AppCompatActivity {
         protected Bitmap doInBackground(Bitmap... bitmaps) {
             // Some long-running task like downloading an image.
             Utils.bitmapToMat(bitmaps[0], imgToProcess);
-            ArrayList result;
-            result = Helpers.findBlob(imgToProcess);
-            Mat imgProcessed = (Mat)result.get(0);
+            //ArrayList result;
+            //result = Helpers.findBlob(imgToProcess);
+            //Mat imgProcessed = (Mat)result.get(0);
             //imgToProcess = (Mat)result.get(0);
-            numberOfBlob = (int)result.get(1);
-            Mat imgOrig = (Mat)result.get(2);
-            Bitmap bmpOut = Bitmap.createBitmap(imgProcessed.cols(), imgProcessed.rows(), Bitmap.Config.ARGB_8888);
-            Utils.matToBitmap(imgProcessed, bmpOut);
-            bmpImgOrig = Bitmap.createBitmap(imgOrig.cols(), imgOrig.rows(), Bitmap.Config.ARGB_8888);
-            Utils.matToBitmap(imgOrig, bmpImgOrig);
-            return bmpOut;
+            //numberOfBlob = (int)result.get(1);
+            //Mat imgOrig = (Mat)result.get(2);
+            //Bitmap bmpOut = Bitmap.createBitmap(imgProcessed.cols(), imgProcessed.rows(), Bitmap.Config.ARGB_8888);
+            //Utils.matToBitmap(imgProcessed, bmpOut);
+            //bmpImgOrig = Bitmap.createBitmap(imgOrig.cols(), imgOrig.rows(), Bitmap.Config.ARGB_8888);
+            //Utils.matToBitmap(imgOrig, bmpImgOrig);
+            return bitmaps[0];
         }
 
         protected void onProgressUpdate() {
