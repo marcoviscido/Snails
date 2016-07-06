@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,9 +23,11 @@ import org.opencv.core.Point;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import it.unipg.studenti.ai.snails.utils.Helpers;
 
@@ -43,6 +46,8 @@ public class ElabActivity extends AppCompatActivity {
     TextView textView5;
     TextView textView6;
     TextView textView7;
+    TextView textView8;
+    TextView textView9;
 
     SubsamplingScaleImageView imgView1;
     SubsamplingScaleImageView imgView2;
@@ -51,6 +56,8 @@ public class ElabActivity extends AppCompatActivity {
     SubsamplingScaleImageView imgView5;
     SubsamplingScaleImageView imgView6;
     SubsamplingScaleImageView imgView7;
+    SubsamplingScaleImageView imgView8;
+    SubsamplingScaleImageView imgView9;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +75,8 @@ public class ElabActivity extends AppCompatActivity {
         textView5 = (TextView)findViewById(R.id.textView5);
         textView6 = (TextView)findViewById(R.id.textView6);
         textView7 = (TextView)findViewById(R.id.textView7);
+        textView8 = (TextView)findViewById(R.id.textView8);
+        textView9 = (TextView)findViewById(R.id.textView9);
 
         imgView1 = (SubsamplingScaleImageView)findViewById(R.id.imgView1);
         imgView2 = (SubsamplingScaleImageView)findViewById(R.id.imgView2);
@@ -76,6 +85,8 @@ public class ElabActivity extends AppCompatActivity {
         imgView5 = (SubsamplingScaleImageView)findViewById(R.id.imgView5);
         imgView6 = (SubsamplingScaleImageView)findViewById(R.id.imgView6);
         imgView7 = (SubsamplingScaleImageView)findViewById(R.id.imgView7);
+        imgView8 = (SubsamplingScaleImageView)findViewById(R.id.imgView8);
+        imgView9 = (SubsamplingScaleImageView)findViewById(R.id.imgView9);
 
         Bundle bd = getIntent().getExtras();
         if(bd != null)
@@ -113,20 +124,18 @@ public class ElabActivity extends AppCompatActivity {
             ret.add(Bitmap.createBitmap(imgProcessed[0].cols(), imgProcessed[0].rows(), Bitmap.Config.ARGB_8888));
             Utils.matToBitmap(imgProcessed[0], ret.get(1));
 
-            List<Mat> snailsPreDetect = Helpers.SnailsPreDetect(imgProcessed[0]);
-            ret.add(Bitmap.createBitmap(snailsPreDetect.get(0).cols(), snailsPreDetect.get(0).rows(), Bitmap.Config.ARGB_8888));
-            Utils.matToBitmap(snailsPreDetect.get(0), ret.get(2));
+            Mat snailsPreDetect = Helpers.SnailsPreDetect(imgProcessed[0]);
+            ret.add(Bitmap.createBitmap(snailsPreDetect.cols(), snailsPreDetect.rows(), Bitmap.Config.ARGB_8888));
+            Utils.matToBitmap(snailsPreDetect, ret.get(2));
 
-            ret.add(Bitmap.createBitmap(snailsPreDetect.get(1).cols(), snailsPreDetect.get(1).rows(), Bitmap.Config.ARGB_8888));
-            Utils.matToBitmap(snailsPreDetect.get(1), ret.get(3));
+            Mat snailsDetect = Helpers.SnailsDetect(snailsPreDetect, mats[0]);
+            ret.add(Bitmap.createBitmap(snailsDetect.cols(), snailsDetect.rows(), Bitmap.Config.ARGB_8888));
+            Utils.matToBitmap(snailsDetect, ret.get(3));
 
-            ret.add(Bitmap.createBitmap(snailsPreDetect.get(2).cols(), snailsPreDetect.get(2).rows(), Bitmap.Config.ARGB_8888));
-            Utils.matToBitmap(snailsPreDetect.get(2), ret.get(4));
 
-            Mat mergedMat = new Mat();
-            Core.merge(snailsPreDetect, mergedMat);
-            ret.add(Bitmap.createBitmap(mergedMat.cols(), mergedMat.rows(), Bitmap.Config.ARGB_8888));
-            Utils.matToBitmap(mergedMat, ret.get(5));
+            /*Mat funny = Helpers.FunnyElab(imgProcessed[0]);
+            ret.add(Bitmap.createBitmap(funny.cols(), funny.rows(), Bitmap.Config.ARGB_8888));
+            Utils.matToBitmap(funny, ret.get(7));*/
 
             return ret;
         }
@@ -144,23 +153,29 @@ public class ElabActivity extends AppCompatActivity {
             imgView2.setImage(ImageSource.bitmap(result.get(0)));
             textView3.setText("ROI detection:");
             imgView3.setImage(ImageSource.bitmap(result.get(1)));
-            textView4.setText("Pre Snails detection 1:");
+            textView4.setText("Snails pre-detection:");
             imgView4.setImage(ImageSource.bitmap(result.get(2)));
-            textView5.setText("Pre Snails detection 2:");
+            textView5.setText("Snails detection:");
             imgView5.setImage(ImageSource.bitmap(result.get(3)));
-            textView6.setText("Pre Snails detection 3:");
+            /*textView6.setText("Pre Snails detection 3:");
             imgView6.setImage(ImageSource.bitmap(result.get(4)));
             textView7.setText("Merged channels:");
             imgView7.setImage(ImageSource.bitmap(result.get(5)));
-            /*try {
-                FileOutputStream fos = openFileOutput(filename, MODE_PRIVATE);
-                result.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            textView8.setText("Second Elaboration:");
+            imgView8.setImage(ImageSource.bitmap(result.get(6)));
+            textView9.setText("Funny image:");
+            imgView9.setImage(ImageSource.bitmap(result.get(7)));*/
+            try {
+                //FileOutputStream fos = openFileOutput(filename, MODE_PRIVATE);
+                File f = new File("/mnt/shared/android_shared/", UUID.randomUUID().toString()+".jpg");
+                FileOutputStream fos = new FileOutputStream(f);
+                result.get(6).compress(Bitmap.CompressFormat.PNG, 100, fos);
                 fos.flush();
                 fos.close();
                 //System.out.println("Salvato in: "+getFilesDir()+"/"+filename);
             } catch (Exception e) {
                 e.printStackTrace();
-            }*/
+            }
             progress.dismiss();
         }
     }

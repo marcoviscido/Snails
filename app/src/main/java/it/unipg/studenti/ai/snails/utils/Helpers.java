@@ -2,13 +2,16 @@ package it.unipg.studenti.ai.snails.utils;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
+import org.opencv.core.KeyPoint;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfKeyPoint;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.features2d.FeatureDetector;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
@@ -371,29 +374,90 @@ public class Helpers {
         return ret;
     }
 
-    public static List<Mat> SnailsPreDetect(Mat src) {
+    public static Mat SnailsPreDetect(Mat src) {
         List<Mat> dstCh = new ArrayList<>();
         int size = src.rows()/4;
         if(size%2 == 0) size--;
         Mat element = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_ELLIPSE, new Size(2 * 1 + 1, 2 * 1 + 1), new Point(1, 1));
         Core.split(src, dstCh);
 
-        Imgproc.adaptiveThreshold(dstCh.get(0), dstCh.get(0), 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, size, 0);
-        for (int v = 0; v < 5; v++) {
-            Imgproc.dilate(dstCh.get(0), dstCh.get(0), element);
-        }
-
-        Imgproc.adaptiveThreshold(dstCh.get(1), dstCh.get(1), 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, size, 0);
-        for (int v = 0; v < 5; v++) {
-            Imgproc.dilate(dstCh.get(1), dstCh.get(1), element);
-        }
-
         Imgproc.adaptiveThreshold(dstCh.get(2), dstCh.get(2), 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, size, 0);
-        for (int v = 0; v < 5; v++) {
-            Imgproc.dilate(dstCh.get(2), dstCh.get(2), element);
-        }
-        /*dstCh.remove(1);
-        dstCh.add(1, Mat.zeros(dstCh.get(1).size(), dstCh.get(1).type()));*/
-        return dstCh;
+        Imgproc.morphologyEx(dstCh.get(2), dstCh.get(2), Imgproc.MORPH_OPEN, element, new Point(0,0), 2);
+        Imgproc.dilate(dstCh.get(2), dstCh.get(2), element, new Point(-1,-1), 10);
+
+        return dstCh.get(2);
     }
+
+    public static Mat SnailsDetect(Mat imgProcess, Mat original_image) {
+
+        List<MatOfPoint> contours = new ArrayList<>();
+        Imgproc.findContours(imgProcess, contours,new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE );
+
+        int idx = -1;
+        int tmp = -1;
+        for (MatOfPoint c : contours) {
+            if(c.rows() > tmp) {
+                tmp = c.rows();
+                idx = contours.indexOf(c);
+            }
+        }
+
+        if(idx > -1) {
+            contours.remove(idx);
+            Imgproc.drawContours(original_image, contours, idx, new Scalar(255, 255, 255), 3);
+        }
+
+        /*MatOfKeyPoint keyPointsM = new MatOfKeyPoint();
+        FeatureDetector fdM = FeatureDetector.create(FeatureDetector.SIMPLEBLOB);
+        fdM.read(paramsPath + "sbd.params.M.xml");
+        fdM.detect(imgProcess, keyPointsM);
+        List<KeyPoint> listKeyPointsM = keyPointsM.toList();
+        for (KeyPoint k : listKeyPointsM) {
+            int radius = (int) (Math.sqrt(k.size / Math.PI)*k.size/8);
+            Rect r = new Rect(new Point(k.pt.x-radius, k.pt.y-radius), new Size(2*radius, 2*radius));
+            Mat m = new Mat(imgProcess, r);
+            Mat element = Imgproc.getStructuringElement( Imgproc.CV_SHAPE_ELLIPSE, new Size(2*1 + 1, 2*1+1 ), new Point( 1, 1 ) );
+            for(int v = 0; v < ((int)k.size/9); v++) {
+                Imgproc.dilate(m, m, element, new Point(-1,-1), 1);
+            }
+        }
+        for (KeyPoint k:listKeyPointsM) {
+            int radius = (int) (Math.sqrt(k.size / Math.PI)*k.size/8);
+            Imgproc.circle(original_image, new Point(k.pt.x, k.pt.y), 1, new Scalar(0, 255, 0), 1); //p1 is colored violet
+            Imgproc.circle(original_image, new Point(k.pt.x, k.pt.y), radius, new Scalar(0, 255, 0), 1);
+
+            Imgproc.circle(imgProcess    , new Point(k.pt.x, k.pt.y), 1, new Scalar(255, 255, 255), 1); //p1 is colored violet
+            Imgproc.circle(imgProcess    , new Point(k.pt.x, k.pt.y), radius, new Scalar(0, 0, 0), 1); //p1 is colored violet
+        }*/
+
+        return original_image;
+    }
+
+    public static Mat FunnyElab(Mat src){
+        Mat ret = new Mat();
+        Mat element = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_ELLIPSE, new Size(2 * 1 + 1, 2 * 1 + 1), new Point(1, 1));
+        List<Mat> dstCh = new ArrayList<>();
+        Core.split(src, dstCh);
+
+        Imgproc.adaptiveThreshold(dstCh.get(0), dstCh.get(0), 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 521, 0);
+        Imgproc.morphologyEx(dstCh.get(0), dstCh.get(0),Imgproc.MORPH_GRADIENT, element );
+
+        Imgproc.adaptiveThreshold(dstCh.get(1), dstCh.get(1), 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 3, 0);
+        Imgproc.GaussianBlur(dstCh.get(1), dstCh.get(1),new Size(3,3), 33);
+        Imgproc.threshold(dstCh.get(1), dstCh.get(1), 130, 255, Imgproc.THRESH_BINARY);
+
+        Imgproc.adaptiveThreshold(dstCh.get(2), dstCh.get(2), 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 521, 0);
+        Imgproc.morphologyEx(dstCh.get(2), dstCh.get(2), Imgproc.MORPH_OPEN, element, new Point(0,0), 2);
+        Imgproc.dilate(dstCh.get(2), dstCh.get(2), element, new Point(-1,-1), 10);
+
+        Core.merge(dstCh, ret);
+
+//        Imgproc.cvtColor(ret, ret, Imgproc.COLOR_BGR2GRAY);
+//        Imgproc.threshold(ret, ret, 0, 255, Imgproc.THRESH_BINARY_INV);
+//        Imgproc.morphologyEx(ret, ret,Imgproc.MORPH_CLOSE, element );
+//        Imgproc.morphologyEx(ret, ret,Imgproc.MORPH_CLOSE, element );
+
+        return ret;
+    }
+
 }
