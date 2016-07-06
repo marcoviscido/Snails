@@ -388,24 +388,16 @@ public class Helpers {
         return dstCh.get(2);
     }
 
-    public static Mat SnailsDetect(Mat imgProcess, Mat original_image) {
+    public static Mat SnailsDetect(Mat m, Mat original_image) {
+        Mat imgProcess = new Mat(m.size(), m.type());
+        m.copyTo(imgProcess);
 
-        List<MatOfPoint> contours = new ArrayList<>();
-        Imgproc.findContours(imgProcess, contours,new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE );
+        //Imgproc.floodFill(imgProcess, new Mat(), new Point(2,2), new Scalar(255,255,255));
 
-        int idx = -1;
-        int tmp = -1;
-        for (MatOfPoint c : contours) {
-            if(c.rows() > tmp) {
-                tmp = c.rows();
-                idx = contours.indexOf(c);
-            }
-        }
+        Mat labels = new Mat();
+        Imgproc.connectedComponents(imgProcess, labels);
 
-        if(idx > -1) {
-            contours.remove(idx);
-            Imgproc.drawContours(original_image, contours, idx, new Scalar(255, 255, 255), 3);
-        }
+        int numLabels = labels.rows();
 
         /*MatOfKeyPoint keyPointsM = new MatOfKeyPoint();
         FeatureDetector fdM = FeatureDetector.create(FeatureDetector.SIMPLEBLOB);
@@ -430,7 +422,7 @@ public class Helpers {
             Imgproc.circle(imgProcess    , new Point(k.pt.x, k.pt.y), radius, new Scalar(0, 0, 0), 1); //p1 is colored violet
         }*/
 
-        return original_image;
+        return imgProcess;
     }
 
     public static Mat FunnyElab(Mat src){
