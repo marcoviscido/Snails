@@ -1,5 +1,9 @@
 package it.unipg.studenti.ai.snails.utils;
 
+import android.provider.ContactsContract;
+import android.util.Log;
+
+import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.KeyPoint;
@@ -12,6 +16,7 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.features2d.FeatureDetector;
+import org.opencv.features2d.Features2d;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
@@ -388,17 +393,46 @@ public class Helpers {
         return dstCh.get(2);
     }
 
-    public static Mat SnailsDetect(Mat m, Mat original_image) {
-        Mat imgProcess = new Mat(m.size(), m.type());
-        m.copyTo(imgProcess);
+    public static MatOfKeyPoint SimpleBlobDetector(Mat src, String params){
+        MatOfKeyPoint keyPoints = new MatOfKeyPoint();
+        FeatureDetector fd = FeatureDetector.create(FeatureDetector.SIMPLEBLOB);
+        fd.read(paramsPath + params);
+        fd.detect(src, keyPoints);
+        return keyPoints;
+    }
 
-        //Imgproc.floodFill(imgProcess, new Mat(), new Point(2,2), new Scalar(255,255,255));
+    public static Mat[] SnailsDetect(Mat imgProcess, Mat original_image) {
+        ArrayList<Mat> ret = new ArrayList<>();
+        Mat imgProcessed = new Mat(imgProcess.size(), imgProcess.type());
+        imgProcess.copyTo(imgProcessed);
 
-        Mat labels = new Mat();
-        Imgproc.connectedComponents(imgProcess, labels);
+        Imgproc.floodFill(imgProcess, new Mat(), new Point(2,2), new Scalar(255,255,255));
 
-        int numLabels = labels.rows();
+        MatOfKeyPoint kpsLARGE = SimpleBlobDetector(imgProcess, "sbd.params.L.xml");
+        MatOfKeyPoint kpsMEDIUM = SimpleBlobDetector(imgProcess, "sbd.params.M.xml");
+        MatOfKeyPoint kpsSMALL = SimpleBlobDetector(imgProcess, "sbd.params.S.xml");
 
+        Features2d.drawKeypoints(imgProcessed, kpsLARGE, imgProcessed, new Scalar(255,0,0),Features2d.DRAW_RICH_KEYPOINTS);
+        Features2d.drawKeypoints(imgProcessed, kpsMEDIUM, imgProcessed, new Scalar(0,255,0),Features2d.DRAW_RICH_KEYPOINTS);
+        Features2d.drawKeypoints(imgProcessed, kpsSMALL, imgProcessed, new Scalar(0,0,255),Features2d.DRAW_RICH_KEYPOINTS);
+
+        MatOfPoint matOfPoint = new MatOfPoint();
+        KeyPoint[] keyPoints = kpsLARGE.toArray();
+
+        matOfPoint.setTo(kpsLARGE);
+        for (KeyPoint kp: keyPoints) {
+
+
+        }
+
+        Point center = new Point();
+        float[] radius = new float[1];
+        MatOfPoint2f matOfPoint2f = new MatOfPoint2f();
+        kpsLARGE.convertTo(matOfPoint2f, matOfPoint2f.type());
+        Imgproc.minEnclosingCircle(matOfPoint2f, center, radius);
+
+
+        ret.add(imgProcessed);
         /*MatOfKeyPoint keyPointsM = new MatOfKeyPoint();
         FeatureDetector fdM = FeatureDetector.create(FeatureDetector.SIMPLEBLOB);
         fdM.read(paramsPath + "sbd.params.M.xml");
@@ -422,7 +456,9 @@ public class Helpers {
             Imgproc.circle(imgProcess    , new Point(k.pt.x, k.pt.y), radius, new Scalar(0, 0, 0), 1); //p1 is colored violet
         }*/
 
-        return imgProcess;
+        Mat[] r = new Mat[ret.size()];
+        ret.toArray(r);
+        return r;
     }
 
     public static Mat FunnyElab(Mat src){
