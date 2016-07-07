@@ -19,13 +19,14 @@ import org.opencv.features2d.FeatureDetector;
 import org.opencv.features2d.Features2d;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Helpers {
-    static String paramsPath = "/mnt/shared/android_shared/";
-    //static String paramsPath = "/mnt/sdcard/download/";
+    //static String paramsPath = "/mnt/shared/android_shared/";
+    static String paramsPath = "/mnt/sdcard/download/";
 
     static Point p1 = new Point();
     static Point p2 = new Point();
@@ -394,9 +395,11 @@ public class Helpers {
     }
 
     public static MatOfKeyPoint SimpleBlobDetector(Mat src, String params){
+        File f = new File(paramsPath, params);
         MatOfKeyPoint keyPoints = new MatOfKeyPoint();
         FeatureDetector fd = FeatureDetector.create(FeatureDetector.SIMPLEBLOB);
-        fd.read(paramsPath + params);
+        if(!f.exists()) fd.write(f.getAbsolutePath());
+        fd.read(f.getAbsolutePath());
         fd.detect(src, keyPoints);
         return keyPoints;
     }
@@ -404,19 +407,87 @@ public class Helpers {
     public static Mat[] SnailsDetect(Mat imgProcess, Mat original_image) {
         ArrayList<Mat> ret = new ArrayList<>();
         Mat imgProcessed = new Mat(imgProcess.size(), imgProcess.type());
-        imgProcess.copyTo(imgProcessed);
 
         Imgproc.floodFill(imgProcess, new Mat(), new Point(2,2), new Scalar(255,255,255));
 
-        MatOfKeyPoint kpsLARGE = SimpleBlobDetector(imgProcess, "sbd.params.L.xml");
-        MatOfKeyPoint kpsMEDIUM = SimpleBlobDetector(imgProcess, "sbd.params.M.xml");
-        MatOfKeyPoint kpsSMALL = SimpleBlobDetector(imgProcess, "sbd.params.S.xml");
+        imgProcess.copyTo(imgProcessed);
 
-        Features2d.drawKeypoints(imgProcessed, kpsLARGE, imgProcessed, new Scalar(255,0,0),Features2d.DRAW_RICH_KEYPOINTS);
-        Features2d.drawKeypoints(imgProcessed, kpsMEDIUM, imgProcessed, new Scalar(0,255,0),Features2d.DRAW_RICH_KEYPOINTS);
-        Features2d.drawKeypoints(imgProcessed, kpsSMALL, imgProcessed, new Scalar(0,0,255),Features2d.DRAW_RICH_KEYPOINTS);
+        MatOfKeyPoint kpsLARGE = SimpleBlobDetector(imgProcessed, "sbd.params.L.xml");
+        MatOfKeyPoint kpsMEDIUM = SimpleBlobDetector(imgProcessed, "sbd.params.M.xml");
+        MatOfKeyPoint kpsSMALL = SimpleBlobDetector(imgProcessed, "sbd.params.S.xml");
 
-        MatOfPoint matOfPoint = new MatOfPoint();
+        //Features2d.drawKeypoints(imgProcessed, kpsLARGE, imgProcessed, new Scalar(255,0,0),Features2d.DRAW_RICH_KEYPOINTS);
+        //Features2d.drawKeypoints(imgProcessed, kpsMEDIUM, imgProcessed, new Scalar(0,255,0),Features2d.DRAW_RICH_KEYPOINTS);
+        //Features2d.drawKeypoints(imgProcessed, kpsSMALL, imgProcessed, new Scalar(0,0,255),Features2d.DRAW_RICH_KEYPOINTS);
+
+        KeyPoint[] kpsLargeArray = kpsLARGE.toArray();
+
+        List<MatOfPoint> contours = new ArrayList<>();
+        Imgproc.findContours(imgProcessed, contours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE, new Point(0, 0) );
+
+        /// Approximate contours to polygons + get bounding rects and circles
+        List<Rect> boundRect = new ArrayList<>(contours.size());
+        List<Point> center = new ArrayList<>();
+        List<float[]> radius = new ArrayList<>();
+
+        List<MatOfPoint> matOfPointList = new ArrayList<>();
+        MatOfPoint2f matOfPoint2fContoursPoly = new MatOfPoint2f();
+
+        for( int i = 0; i < contours.size(); i++ )
+        {
+            MatOfPoint2f matOfPoint2fContours = new MatOfPoint2f(contours.get(i).toArray());
+
+            Imgproc.approxPolyDP(matOfPoint2fContours, matOfPoint2fContoursPoly , 3., true );
+
+            MatOfPoint matOfPoint = new MatOfPoint();
+            matOfPoint2fContoursPoly.convertTo(matOfPoint, CvType.CV_32S);
+            boundRect.add(i, Imgproc.boundingRect( matOfPoint ) );
+
+            //Imgproc.minEnclosingCircle( matOfPoint2fContoursPoly, center.get(i), radius.get(i) );
+
+            matOfPointList.add(matOfPoint);
+        }
+
+        /// Draw polygonal contour + bonding rects + circles
+        /*Mat drawing = Mat.zeros(imgProcess.size(), CvType.CV_8UC3);
+        for( int i = 0; i< contours.size(); i++ )
+        {
+            Scalar color = new  Scalar( 200,156,53 );
+            Imgproc.drawContours(imgProcess, matOfPointList, i, color, 1);
+            Imgproc.rectangle(imgProcess, boundRect.get(i).tl(), boundRect.get(i).br(), color, 2, 8, 0 );
+        }*/
+
+
+        /*List<Rect> secBoundRect = new ArrayList<>(boundRect);
+        for (Rect r:secBoundRect) {
+
+        }*/
+
+        int count = 0;
+        List<Mat> submats = new ArrayList<>();
+        Mat element = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_ELLIPSE, new Size(2 * 1 + 1, 2 * 1 + 1), new Point(1, 1));
+
+        for(KeyPoint kp:kpsLargeArray){
+            for (Rect rect:boundRect) {
+                if(kp.pt.inside(rect) && (rect.area()< (original_image.size().area()/10*9))){
+                    Scalar color = new  Scalar( 200,156,53 );
+                    //Imgproc.drawContours(imgProcess, matOfPointList, boundRect.indexOf(rect), color, 15);
+                    //Imgproc.rectangle(imgProcess, rect.tl(), rect.br(), color, 2, 8, 0 );
+                    Mat m = imgProcess.submat(rect);
+                    int iterations = (int) kp.size/10;
+                    Imgproc.dilate(m, m, element, new Point(-1,-1), iterations);
+                    submats.add(m);
+                    count++;
+                    //break;
+                }
+            }
+        }
+
+        //ret.add(imgProcessed);
+        ret.add(imgProcess);
+        ret.addAll(submats);
+
+        /*MatOfPoint matOfPoint = new MatOfPoint();
         KeyPoint[] keyPoints = kpsLARGE.toArray();
 
         matOfPoint.setTo(kpsLARGE);
@@ -428,11 +499,9 @@ public class Helpers {
         Point center = new Point();
         float[] radius = new float[1];
         MatOfPoint2f matOfPoint2f = new MatOfPoint2f();
-        kpsLARGE.convertTo(matOfPoint2f, matOfPoint2f.type());
-        Imgproc.minEnclosingCircle(matOfPoint2f, center, radius);
+        kpsLARGE.convertTo(matOfPoint2f, matOfPoint2f.type());*/
+        //Imgproc.minEnclosingCircle(matOfPoint2f, center, radius);
 
-
-        ret.add(imgProcessed);
         /*MatOfKeyPoint keyPointsM = new MatOfKeyPoint();
         FeatureDetector fdM = FeatureDetector.create(FeatureDetector.SIMPLEBLOB);
         fdM.read(paramsPath + "sbd.params.M.xml");

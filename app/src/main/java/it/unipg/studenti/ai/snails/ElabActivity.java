@@ -32,6 +32,7 @@ import java.util.UUID;
 import it.unipg.studenti.ai.snails.utils.Helpers;
 
 public class ElabActivity extends AppCompatActivity {
+    boolean first = true;
     String imageAbsPath;
     Bitmap origBmpImage;
     Mat origMatImage;
@@ -129,8 +130,16 @@ public class ElabActivity extends AppCompatActivity {
             Utils.matToBitmap(snailsPreDetect, ret.get(2));
 
             Mat[] snailsDetect = Helpers.SnailsDetect(snailsPreDetect, mats[0]);
-            ret.add(Bitmap.createBitmap(snailsDetect[0].cols(), snailsDetect[0].rows(), Bitmap.Config.ARGB_8888));
+            for(int img = 0; img<snailsDetect.length; img++){
+                ret.add(Bitmap.createBitmap(snailsDetect[img].cols(), snailsDetect[img].rows(), Bitmap.Config.ARGB_8888));
+                Utils.matToBitmap(snailsDetect[img], ret.get(3+img));
+            }
+
+            /*ret.add(Bitmap.createBitmap(snailsDetect[0].cols(), snailsDetect[0].rows(), Bitmap.Config.ARGB_8888));
             Utils.matToBitmap(snailsDetect[0], ret.get(3));
+
+            ret.add(Bitmap.createBitmap(snailsDetect[1].cols(), snailsDetect[1].rows(), Bitmap.Config.ARGB_8888));
+            Utils.matToBitmap(snailsDetect[1], ret.get(4));*/
 
 
             /*Mat funny = Helpers.FunnyElab(imgProcessed[0]);
@@ -157,14 +166,14 @@ public class ElabActivity extends AppCompatActivity {
             imgView4.setImage(ImageSource.bitmap(result.get(2)));
             textView5.setText("Snails detection:");
             imgView5.setImage(ImageSource.bitmap(result.get(3)));
-            /*textView6.setText("Pre Snails detection 3:");
+            textView6.setText("test submat:");
             imgView6.setImage(ImageSource.bitmap(result.get(4)));
-            textView7.setText("Merged channels:");
+            textView7.setText("test submat:");
             imgView7.setImage(ImageSource.bitmap(result.get(5)));
-            textView8.setText("Second Elaboration:");
+            textView8.setText("test submat:");
             imgView8.setImage(ImageSource.bitmap(result.get(6)));
-            textView9.setText("Funny image:");
-            imgView9.setImage(ImageSource.bitmap(result.get(7)));*/
+            textView9.setText("test submat:");
+            imgView9.setImage(ImageSource.bitmap(result.get(7)));
             try {
                 //FileOutputStream fos = openFileOutput(filename, MODE_PRIVATE);
                 File f = new File("/mnt/shared/android_shared/", UUID.randomUUID().toString()+".jpg");
@@ -187,10 +196,13 @@ public class ElabActivity extends AppCompatActivity {
                 case LoaderCallbackInterface.SUCCESS:
                 {
                     Log.i("OpenCV", "OpenCV loaded successfully");
-                    origMatImage=new Mat();
-                    Utils.bitmapToMat(origBmpImage, origMatImage);
-                    LongOperation asyncTask = new LongOperation();
-                    asyncTask.execute(origMatImage);
+                    if(first) {
+                        first = false;
+                        origMatImage = new Mat();
+                        Utils.bitmapToMat(origBmpImage, origMatImage);
+                        LongOperation asyncTask = new LongOperation();
+                        asyncTask.execute(origMatImage);
+                    }
                 } break;
                 default:
                 {
