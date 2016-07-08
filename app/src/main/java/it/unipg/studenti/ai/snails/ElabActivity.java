@@ -56,8 +56,8 @@ public class ElabActivity extends AppCompatActivity {
     SubsamplingScaleImageView imgView3;
     SubsamplingScaleImageView imgView4;
     SubsamplingScaleImageView imgView5;
-    //SubsamplingScaleImageView imgView6;
-    ImageView imgView6;
+    SubsamplingScaleImageView imgView6;
+    //ImageView imgView6;
     SubsamplingScaleImageView imgView7;
     SubsamplingScaleImageView imgView8;
     SubsamplingScaleImageView imgView9;
@@ -86,8 +86,8 @@ public class ElabActivity extends AppCompatActivity {
         imgView3 = (SubsamplingScaleImageView)findViewById(R.id.imgView3);
         imgView4 = (SubsamplingScaleImageView)findViewById(R.id.imgView4);
         imgView5 = (SubsamplingScaleImageView)findViewById(R.id.imgView5);
-        //imgView6 = (SubsamplingScaleImageView)findViewById(R.id.imgView6);
-        imgView6 = (ImageView)findViewById(R.id.imgView6);
+        imgView6 = (SubsamplingScaleImageView)findViewById(R.id.imgView6);
+        //imgView6 = (ImageView)findViewById(R.id.imgView6);
         imgView7 = (SubsamplingScaleImageView)findViewById(R.id.imgView7);
         imgView8 = (SubsamplingScaleImageView)findViewById(R.id.imgView8);
         imgView9 = (SubsamplingScaleImageView)findViewById(R.id.imgView9);
@@ -166,8 +166,8 @@ public class ElabActivity extends AppCompatActivity {
             textView5.setText("Snails detection:");
             imgView5.setImage(ImageSource.bitmap(result.get(3)));
             textView6.setText("submats:");
-            //imgView6.setImage(ImageSource.bitmap(result.get(4)));
-            imgView6.setImageBitmap(result.get(4));
+            imgView6.setImage(ImageSource.bitmap(result.get(4)));
+            //imgView6.setImageBitmap(result.get(4));
             /*textView7.setText("test submat:");
             imgView7.setImage(ImageSource.bitmap(result.get(5)));
             textView8.setText("test submat:");
