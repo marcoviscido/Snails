@@ -8,6 +8,7 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
@@ -55,7 +56,8 @@ public class ElabActivity extends AppCompatActivity {
     SubsamplingScaleImageView imgView3;
     SubsamplingScaleImageView imgView4;
     SubsamplingScaleImageView imgView5;
-    SubsamplingScaleImageView imgView6;
+    //SubsamplingScaleImageView imgView6;
+    ImageView imgView6;
     SubsamplingScaleImageView imgView7;
     SubsamplingScaleImageView imgView8;
     SubsamplingScaleImageView imgView9;
@@ -84,7 +86,8 @@ public class ElabActivity extends AppCompatActivity {
         imgView3 = (SubsamplingScaleImageView)findViewById(R.id.imgView3);
         imgView4 = (SubsamplingScaleImageView)findViewById(R.id.imgView4);
         imgView5 = (SubsamplingScaleImageView)findViewById(R.id.imgView5);
-        imgView6 = (SubsamplingScaleImageView)findViewById(R.id.imgView6);
+        //imgView6 = (SubsamplingScaleImageView)findViewById(R.id.imgView6);
+        imgView6 = (ImageView)findViewById(R.id.imgView6);
         imgView7 = (SubsamplingScaleImageView)findViewById(R.id.imgView7);
         imgView8 = (SubsamplingScaleImageView)findViewById(R.id.imgView8);
         imgView9 = (SubsamplingScaleImageView)findViewById(R.id.imgView9);
@@ -130,16 +133,12 @@ public class ElabActivity extends AppCompatActivity {
             Utils.matToBitmap(snailsPreDetect, ret.get(2));
 
             Mat[] snailsDetect = Helpers.SnailsDetect(snailsPreDetect, mats[0]);
-            for(int img = 0; img<snailsDetect.length; img++){
-                ret.add(Bitmap.createBitmap(snailsDetect[img].cols(), snailsDetect[img].rows(), Bitmap.Config.ARGB_8888));
-                Utils.matToBitmap(snailsDetect[img], ret.get(3+img));
-            }
 
-            /*ret.add(Bitmap.createBitmap(snailsDetect[0].cols(), snailsDetect[0].rows(), Bitmap.Config.ARGB_8888));
+            ret.add(Bitmap.createBitmap(snailsDetect[0].cols(), snailsDetect[0].rows(), Bitmap.Config.ARGB_8888));
             Utils.matToBitmap(snailsDetect[0], ret.get(3));
 
             ret.add(Bitmap.createBitmap(snailsDetect[1].cols(), snailsDetect[1].rows(), Bitmap.Config.ARGB_8888));
-            Utils.matToBitmap(snailsDetect[1], ret.get(4));*/
+            Utils.matToBitmap(snailsDetect[1], ret.get(4));
 
 
             /*Mat funny = Helpers.FunnyElab(imgProcessed[0]);
@@ -166,14 +165,15 @@ public class ElabActivity extends AppCompatActivity {
             imgView4.setImage(ImageSource.bitmap(result.get(2)));
             textView5.setText("Snails detection:");
             imgView5.setImage(ImageSource.bitmap(result.get(3)));
-            textView6.setText("test submat:");
-            imgView6.setImage(ImageSource.bitmap(result.get(4)));
-            textView7.setText("test submat:");
+            textView6.setText("submats:");
+            //imgView6.setImage(ImageSource.bitmap(result.get(4)));
+            imgView6.setImageBitmap(result.get(4));
+            /*textView7.setText("test submat:");
             imgView7.setImage(ImageSource.bitmap(result.get(5)));
             textView8.setText("test submat:");
             imgView8.setImage(ImageSource.bitmap(result.get(6)));
             textView9.setText("test submat:");
-            imgView9.setImage(ImageSource.bitmap(result.get(7)));
+            imgView9.setImage(ImageSource.bitmap(result.get(7)));*/
             try {
                 //FileOutputStream fos = openFileOutput(filename, MODE_PRIVATE);
                 File f = new File("/mnt/shared/android_shared/", UUID.randomUUID().toString()+".jpg");

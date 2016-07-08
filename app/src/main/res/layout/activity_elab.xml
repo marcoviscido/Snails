@@ -23,7 +23,7 @@
             android:id="@+id/imgView1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="10"
+
             />
 
         <TextView
@@ -36,7 +36,7 @@
             android:id="@+id/imgView2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="10"
+
             />
 
         <TextView
@@ -49,7 +49,7 @@
             android:id="@+id/imgView3"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="10"
+
             />
 
         <TextView
@@ -62,7 +62,7 @@
             android:id="@+id/imgView4"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="10"
+
             />
 
         <TextView
@@ -75,7 +75,7 @@
             android:id="@+id/imgView5"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="10"
+
             />
 
         <TextView
@@ -84,12 +84,14 @@
             android:layout_height="wrap_content"
             android:text="textView6"
             android:textAppearance="?android:attr/textAppearanceSmall" />
-        <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+        <!--<com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
             android:id="@+id/imgView6"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="10"
-            />
+            android:layout_height="wrap_content"/>-->
+        <ImageView
+            android:id="@+id/imgView6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
         <TextView
             android:id="@+id/textView7"
@@ -101,7 +103,7 @@
             android:id="@+id/imgView7"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="10"
+
             />
 
         <TextView
@@ -114,7 +116,7 @@
             android:id="@+id/imgView8"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="10"
+
             />
 
         <TextView
@@ -127,7 +129,7 @@
             android:id="@+id/imgView9"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="10"
+
             />
 
         <TextView
@@ -140,7 +142,7 @@
             android:id="@+id/imgView10"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="10"
+
             />
 
 
