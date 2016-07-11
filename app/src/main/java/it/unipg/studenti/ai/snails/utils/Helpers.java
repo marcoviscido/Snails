@@ -491,6 +491,7 @@ public class Helpers {
         int maxColsNumber = 0;
         for (Pair pair : rectKpPairs) {
             Rect rect = (Rect) pair.first;
+            KeyPoint kp = (KeyPoint) pair.second;
             if (rect.area() < (input_image.size().area() / 10 * 9)) {
                 Mat m = input_image.submat(rect);
                 Mat mm = new Mat();
@@ -512,22 +513,17 @@ public class Helpers {
                         idx = contours.indexOf(c);
                     }
                 }
-                Mat mask = new Mat(mm.size(), CvType.CV_8UC1, new Scalar(0,0,0));
-                Imgproc.drawContours(mask, snailCnt, idx, new Scalar(255,255,255),1);
-                Point seedPoint = null;
-                for(int mrow = 0; mrow < mm.rows(); mrow++){
-                    for(int mcol = 0; mcol < mm.cols(); mcol++){
-                        seedPoint = new Point(mrow, mcol);
-                        if(Imgproc.pointPolygonTest(snailCnt2f, seedPoint, false) < 0){
-                            Scalar colourMM = new Scalar(mm.get(mrow, mcol));
-                            if(colourMM.equals(new Scalar(0,0,0))){
-                                Imgproc.floodFill(mask, new Mat(), seedPoint , new Scalar(255,255,255) );
-                            }
-                        }
-                    }
-                }
-                Mat maskedImage = new Mat(mm.size(), mm.type());
-                Core.bitwise_xor(mm, mask, mm);
+//                Mat mask = new Mat(mm.size(), CvType.CV_8UC1, new Scalar(0,0,0));
+//                Imgproc.drawContours(mask, snailCnt, idx, new Scalar(255,255,255),1);
+//                if(Imgproc.pointPolygonTest(snailCnt2f, kp.pt, false) > 0){
+//                    Scalar colourMM = new Scalar(mm.get(mm.rows()/2, mm.cols()/2));
+//                    if(colourMM.equals(new Scalar(0,0,0))){
+//                        Imgproc.floodFill(mask, new Mat(), kp.pt , new Scalar(255,255,255) );
+//                    }
+//                }
+//                Core.bitwise_not(mask,mask);
+//                Mat maskedImage = new Mat(mm.size(), mm.type());
+//                Core.bitwise_and(mm, mask, mm);
                 ret.get(0).add(mm);
 
 
