@@ -26,15 +26,15 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Helpers {
-    //static String paramsPath = "/mnt/shared/android_shared/";
-    static String paramsPath = "/mnt/sdcard/download/";
+    static String paramsPath = "/mnt/shared/android_shared/";
+    //static String paramsPath = "/mnt/sdcard/download/";
 
     static Point p1 = new Point();
     static Point p2 = new Point();
     static Point p3 = new Point();
     static Point p4 = new Point();
 
-    public static boolean isContourSquare(MatOfPoint thisContour) {
+    /*public static boolean isContourSquare(MatOfPoint thisContour) {
 
         Rect ret = null;
 
@@ -53,9 +53,9 @@ public class Helpers {
         }
 
         return (ret != null);
-    }
+    }*/
 
-    public static List<MatOfPoint> getSquareContours(List<MatOfPoint> contours) {
+    /*private static List<MatOfPoint> getSquareContours(List<MatOfPoint> contours) {
 
         List<MatOfPoint> squares = null;
 
@@ -70,9 +70,9 @@ public class Helpers {
         }
 
         return squares;
-    }
+    }*/
 
-    public static Mat findLargestRectangle(Mat original_image) {
+/*    public static Mat findLargestRectangle(Mat original_image) {
         Mat imgProcess = new Mat();
 
 
@@ -146,9 +146,9 @@ public class Helpers {
         System.out.println("PUNTI" + p1+p2);
         return original_image;
 
-    }
+    }*/
 
-    public static Mat cropArea(Mat original_image) {
+/*    public static Mat cropArea(Mat original_image) {
 
 
         //TAGLIARE IL RETTANGOLO
@@ -174,9 +174,9 @@ public class Helpers {
         original_image.copyTo(imageDest, mask);
 
         return imageDest;
-    }
+    }*/
 
-    public static Mat blackToGray(Mat src, int value){
+   /* public static Mat blackToGray(Mat src, int value){
         Mat ret = new Mat(src.rows(), src.cols(), CvType.CV_8UC1);
         for(int j = 0; j < ret.cols(); j++){
             for(int i = 0; i < ret.rows(); i++){
@@ -187,9 +187,9 @@ public class Helpers {
             }
         }
         return ret;
-    }
+    }*/
 
-    public static Mat findBlob(Mat original_image) {
+   /* public static Mat findBlob(Mat original_image) {
 
         Mat imgProcess = new Mat();
         Imgproc.cvtColor(original_image, imgProcess, Imgproc.COLOR_BGR2GRAY);
@@ -209,7 +209,7 @@ public class Helpers {
 
         imgProcess = chls[7];
 
-        /*int the_size = 1;
+        *//*int the_size = 1;
         Mat element;
 
         MatOfKeyPoint keyPointsL = new MatOfKeyPoint();
@@ -236,9 +236,9 @@ public class Helpers {
             //Imgproc.circle(imgProcess    , new Point(k.pt.x, k.pt.y), 1, new Scalar(255, 255, 255), 1); //p1 is colored violet
             //Imgproc.circle(imgProcess    , new Point(k.pt.x, k.pt.y), radius, new Scalar(0, 0, 0), 1); //p1 is colored violet
         }
-        Imgproc.GaussianBlur(imgProcess, imgProcess, new Size(3, 3), 15);*/
+        Imgproc.GaussianBlur(imgProcess, imgProcess, new Size(3, 3), 15);*//*
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        /*MatOfKeyPoint keyPointsM = new MatOfKeyPoint();
+        *//*MatOfKeyPoint keyPointsM = new MatOfKeyPoint();
         FeatureDetector fdM = FeatureDetector.create(FeatureDetector.SIMPLEBLOB);
         fdM.read(paramsPath + "sbd.params.M.xml");
         fdM.detect(imgProcess, keyPointsM);
@@ -260,9 +260,9 @@ public class Helpers {
 
             Imgproc.circle(imgProcess    , new Point(k.pt.x, k.pt.y), 1, new Scalar(255, 255, 255), 1); //p1 is colored violet
             Imgproc.circle(imgProcess    , new Point(k.pt.x, k.pt.y), radius, new Scalar(0, 0, 0), 1); //p1 is colored violet
-        }*/
+        }*//*
 
-        /*MatOfKeyPoint keyPointsUnder6000 = new MatOfKeyPoint();
+        *//*MatOfKeyPoint keyPointsUnder6000 = new MatOfKeyPoint();
         FeatureDetector fd1 = FeatureDetector.create(FeatureDetector.SIMPLEBLOB);
         fd1.read(paramsPath + "sbd.params.U6K.xml");
         fd1.detect(imgProcess, keyPointsUnder6000);
@@ -284,11 +284,11 @@ public class Helpers {
 
             Imgproc.circle(imgProcess    , new Point(k.pt.x, k.pt.y), 1, new Scalar(255, 255, 255), 1); //p1 is colored violet
             Imgproc.circle(imgProcess    , new Point(k.pt.x, k.pt.y), radius*10, new Scalar(0, 0, 0), 1); //p1 is colored violet
-        }*/
+        }*//*
 
 
 
-       /* MatOfKeyPoint keyPointsOver6000 = new MatOfKeyPoint();
+       *//* MatOfKeyPoint keyPointsOver6000 = new MatOfKeyPoint();
         FeatureDetector fd2 = FeatureDetector.create(FeatureDetector.SIMPLEBLOB);
         fd2.read(paramsPath + "sbd.params.O6K.xml");
         fd2.detect(imgProcess, keyPointsOver6000);
@@ -303,13 +303,13 @@ public class Helpers {
                 Imgproc.dilate(m, m, element);
             }
         }
-*/
-        /*MatOfKeyPoint keyPointsUltimi = new MatOfKeyPoint();
+*//*
+        *//*MatOfKeyPoint keyPointsUltimi = new MatOfKeyPoint();
         fdL.detect(imgProcess, keyPointsUltimi);
-        List<KeyPoint> listkeyPointsUltimi = keyPointsUltimi.toList();*/
+        List<KeyPoint> listkeyPointsUltimi = keyPointsUltimi.toList();*//*
         //listkeyPointsUltimi.removeAll(listPointsUnder6000);
 
-        /*for (KeyPoint k:listPointsUnder6000) {
+        *//*for (KeyPoint k:listPointsUnder6000) {
             int radius = (int)Math.sqrt(k.size / Math.PI);
             Imgproc.circle(original_image, new Point(k.pt.x, k.pt.y), 1, new Scalar(0, 255, 0), 1); //p1 is colored violet
             Imgproc.circle(original_image, new Point(k.pt.x, k.pt.y), radius*10, new Scalar(0, 255, 0), 1);
@@ -325,14 +325,14 @@ public class Helpers {
             Imgproc.circle(imgProcess    , new Point(k.pt.x, k.pt.y), 1, new Scalar(255, 255, 255), 1); //p1 is colored violet
             Imgproc.circle(imgProcess    , new Point(k.pt.x, k.pt.y), radius, new Scalar(0, 0, 0), 1); //p1 is colored violet
         }
-*/
+*//*
 
         //ArrayList result = new ArrayList();
         //result.add(imgProcess);
         //result.add(0); //keyPointsUltimi.rows());
         //result.add(original_image);
         return imgProcess;
-    }
+    }*/
 
     public static Mat[] findROI(Mat src) {
         Mat maskedImage = new Mat(src.size(), src.type());
@@ -395,44 +395,167 @@ public class Helpers {
         return dstCh.get(2);
     }
 
-    public static MatOfKeyPoint SimpleBlobDetector(Mat src, String params){
+    private static MatOfKeyPoint SimpleBlobDetector(Mat src, String params){
         MatOfKeyPoint keyPoints = new MatOfKeyPoint();
         FeatureDetector fd = FeatureDetector.create(FeatureDetector.SIMPLEBLOB);
         if(params!=null) {
             File f = new File(paramsPath, params);
             if(!f.exists()) fd.write(f.getAbsolutePath());
             fd.read(f.getAbsolutePath());
+            Log.i("SimpleBlobDetector", " params:" + f.getAbsolutePath().toString());
         }
         fd.detect(src, keyPoints);
         return keyPoints;
     }
 
+    private static List<List<Mat>> SplitInSubmats(Mat input_image, Mat original_image, List<KeyPoint> blodDetectedKpList ){
+        List<MatOfPoint> contours = new ArrayList<>();
+        Mat imgToFindContours = new Mat();
+        input_image.copyTo(imgToFindContours);
+        Imgproc.findContours(imgToFindContours, contours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE, new Point(0, 0) );
+
+        List<Rect> boundRect = new ArrayList<>(contours.size());
+        List<Rect> boundRectBuoni = new ArrayList<>();
+        List<MatOfPoint> matOfPointList = new ArrayList<>();
+        MatOfPoint2f matOfPoint2fContoursPoly = new MatOfPoint2f();
+        for( int i = 0; i < contours.size(); i++ )
+        {
+            MatOfPoint2f matOfPoint2fContours = new MatOfPoint2f(contours.get(i).toArray());
+            Imgproc.approxPolyDP(matOfPoint2fContours, matOfPoint2fContoursPoly , 3., true );
+            MatOfPoint matOfPoint = new MatOfPoint();
+            matOfPoint2fContoursPoly.convertTo(matOfPoint, CvType.CV_32S);
+            boundRect.add(i, Imgproc.boundingRect( matOfPoint ) );
+            matOfPointList.add(matOfPoint);
+        }
+
+        /// Draw polygonal contour + bonding rects + circles
+        /*Mat drawing = Mat.zeros(imgProcess.size(), CvType.CV_8UC3);
+        for( int i = 0; i< contours.size(); i++ )
+        {
+            Scalar color = new  Scalar( 200,156,53 );
+            Imgproc.drawContours(imgProcess, matOfPointList, i, color, 1);
+            Imgproc.rectangle(imgProcess, boundRect.get(i).tl(), boundRect.get(i).br(), color, 2, 8, 0 );
+        }*/
+
+        for (KeyPoint kp : blodDetectedKpList) {
+            double kpDist = 1000000000;
+            Rect kpRect = boundRect.get(0);
+            for (Rect rect : boundRect) {
+                if(kp.pt.inside(rect) && (rect.area() < (input_image.size().area() / 10 * 9))  ){
+                    Mat rectsCenter = new MatOfPoint(new Point( (rect.x + rect.width)/2, (rect.y + rect.height)/2 ));
+                    double dist = Core.norm(new MatOfPoint(kp.pt), rectsCenter, Core.NORM_L2);
+                    if(dist < kpDist){
+                        kpDist = dist;
+                        kpRect = rect;
+                    }
+                }
+            }
+            boundRectBuoni.add(kpRect);
+        }
+
+        List<List<Mat>> ret = new ArrayList<>();
+        ret.add(new ArrayList<Mat>());
+        ret.add(new ArrayList<Mat>());
+
+        int maxColsNumber = 0;
+        for (Rect rect : boundRectBuoni) {
+            if (rect.area() < (input_image.size().area() / 10 * 9)) {
+                Mat m = input_image.submat(rect);
+                Mat mm = new Mat();
+                m.copyTo(mm);
+                Core.copyMakeBorder(mm, mm, 15, 15, 15, 15, Core.BORDER_CONSTANT, new Scalar(255,255,255));
+                ret.get(0).add(mm);
+                //submatList.add(m);
+
+                Mat n = original_image.submat(new Rect(rect.x - 15, rect.y - 15, rect.width + 30, rect.height + 30));
+                Mat o = new Mat();
+                Imgproc.cvtColor(n, o, Imgproc.COLOR_BGR2GRAY, 1);
+                ret.get(1).add(o);
+                //origSubmatList.add(o);
+
+                if (mm.cols() > maxColsNumber) {
+                    maxColsNumber = mm.cols();
+                }
+            }
+        }
+
+        for (Mat m: ret.get(0)) {
+            int mLastCol = m.cols();
+            if(mLastCol < maxColsNumber){
+                Mat col = new Mat(m.rows(), maxColsNumber-mLastCol, m.type());
+                col.setTo(new Scalar(255));
+                List<Mat> cols = new ArrayList<>();
+                cols.add(m);
+                cols.add(col);
+                Mat newMc = new Mat();
+                Core.hconcat(cols, newMc);
+                Mat row = new Mat(40,newMc.cols(), newMc.type());
+                row.setTo(new Scalar(255));
+                List<Mat> rows = new ArrayList<>();
+                Mat newMr = new Mat();
+                rows.add(newMc);
+                rows.add(row);
+                Core.vconcat(rows, newMr);
+                ret.get(0).set(ret.get(0).indexOf(m), newMr);
+                //submatList.set(submatList.indexOf(m), newMr);
+            }
+        }
+
+        for (Mat m: ret.get(1)) {
+            int mLastCol = m.cols();
+            if(mLastCol < maxColsNumber){
+                Mat col = new Mat(m.rows(), maxColsNumber-mLastCol, m.type());
+                col.setTo(new Scalar(255));
+                List<Mat> cols = new ArrayList<>();
+                cols.add(m);
+                cols.add(col);
+                Mat newMc = new Mat();
+                Core.hconcat(cols, newMc);
+                Mat row = new Mat(40,newMc.cols(), newMc.type());
+                row.setTo(new Scalar(255));
+                List<Mat> rows = new ArrayList<>();
+                Mat newMr = new Mat();
+                rows.add(newMc);
+                rows.add(row);
+                Core.vconcat(rows, newMr);
+                ret.get(1).set(ret.get(1).indexOf(m), newMr);
+                //origSubmatList.set(origSubmatList.indexOf(m), newMr);
+            }
+        }
+        return ret;
+    }
+
     public static Mat[] SnailsDetect(Mat input_image, Mat original_image) {
         ArrayList<Mat> ret = new ArrayList<>();
 
+        Mat origImgProc = new Mat();
+        Imgproc.cvtColor(original_image, origImgProc, Imgproc.COLOR_BGRA2BGR);
+
         Imgproc.floodFill(input_image, new Mat(), new Point(2,2), new Scalar(255,255,255));
-        Mat imgProcessed = new Mat(input_image.size(), input_image.type());
-        Mat imgProcessed2 = new Mat(input_image.size(), input_image.type());
-        input_image.copyTo(imgProcessed);
-        input_image.copyTo(imgProcessed2);
+        Mat inImgProc = new Mat(input_image.size(), input_image.type());
+        //Imgproc.cvtColor(original_image, origImgProc, Imgproc.COLOR_BGRA2BGR);
+        input_image.copyTo(inImgProc);
 
-        MatOfKeyPoint kpsLARGE = SimpleBlobDetector(imgProcessed, "sbd.params.L.xml");
-        MatOfKeyPoint kpsMEDIUM = SimpleBlobDetector(imgProcessed, "sbd.params.M.xml");
-        MatOfKeyPoint kpsSMALL = SimpleBlobDetector(imgProcessed, "sbd.params.S.xml");
-        Features2d.drawKeypoints(imgProcessed, kpsLARGE, imgProcessed, new Scalar(255,0,0),Features2d.DRAW_RICH_KEYPOINTS);
-        Features2d.drawKeypoints(imgProcessed, kpsMEDIUM, imgProcessed, new Scalar(0,255,0),Features2d.DRAW_RICH_KEYPOINTS);
-        Features2d.drawKeypoints(imgProcessed, kpsSMALL, imgProcessed, new Scalar(0,0,255),Features2d.DRAW_RICH_KEYPOINTS);
-        List<KeyPoint> kpsLargeList = kpsLARGE.toList();
-        List<KeyPoint> kpsMediumList = kpsMEDIUM.toList();
-        List<KeyPoint> kpsSmallList = kpsSMALL.toList();
+        MatOfKeyPoint kpsSnails = SimpleBlobDetector(input_image, "snails.params.xml");
+        Features2d.drawKeypoints(origImgProc, kpsSnails, origImgProc, new Scalar(0,0,255),Features2d.DRAW_RICH_KEYPOINTS);
+        Features2d.drawKeypoints(inImgProc, kpsSnails, inImgProc, new Scalar(0,0,255),Features2d.DRAW_RICH_KEYPOINTS);
 
-        List<MatOfPoint> contours = new ArrayList<>();
+        //MatOfKeyPoint kpsLargeSnails = SimpleBlobDetector(input_image, "largeSnails.params.xml");
+        //Features2d.drawKeypoints(origImgProc, kpsLargeSnails, origImgProc, new Scalar(255,0,0),Features2d.DRAW_RICH_KEYPOINTS);
+        //Features2d.drawKeypoints(inImgProc, kpsLargeSnails, inImgProc, new Scalar(255,0,0),Features2d.DRAW_RICH_KEYPOINTS);
+
+        List<KeyPoint> allKps = new ArrayList<>();
+        allKps.addAll(kpsSnails.toList());
+        //allKps.addAll(kpsLargeSnails.toList());
+
+        List<List<Mat>> splittedSubmats = SplitInSubmats(input_image, origImgProc, allKps);
+
+        // da qui
+        /*List<MatOfPoint> contours = new ArrayList<>();
         Imgproc.findContours(input_image, contours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE, new Point(0, 0) );
 
         /// Approximate contours to polygons + get bounding rects and circles
         List<Rect> boundRect = new ArrayList<>(contours.size());
-        List<Point> center = new ArrayList<>();
-        List<float[]> radius = new ArrayList<>();
 
         List<MatOfPoint> matOfPointList = new ArrayList<>();
         MatOfPoint2f matOfPoint2fContoursPoly = new MatOfPoint2f();
@@ -453,24 +576,24 @@ public class Helpers {
         }
 
         /// Draw polygonal contour + bonding rects + circles
-        /*Mat drawing = Mat.zeros(imgProcess.size(), CvType.CV_8UC3);
+        *//*Mat drawing = Mat.zeros(imgProcess.size(), CvType.CV_8UC3);
         for( int i = 0; i< contours.size(); i++ )
         {
             Scalar color = new  Scalar( 200,156,53 );
             Imgproc.drawContours(imgProcess, matOfPointList, i, color, 1);
             Imgproc.rectangle(imgProcess, boundRect.get(i).tl(), boundRect.get(i).br(), color, 2, 8, 0 );
-        }*/
+        }*//*
 
 
-        /*List<Rect> secBoundRect = new ArrayList<>(boundRect);
+        *//*List<Rect> secBoundRect = new ArrayList<>(boundRect);
         for (Rect r:secBoundRect) {
 
-        }*/
+        }*//*
 
 
         //Mat element = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_ELLIPSE, new Size(2 * 1 + 1, 2 * 1 + 1), new Point(1, 1));
 
-        /*for(KeyPoint kp:kpsLargeArray){
+        *//*for(KeyPoint kp:kpsLargeArray){
             for (Rect rect:boundRect) {
                 if(kp.pt.inside(rect) && (rect.area()< (original_image.size().area()/10*9))){
                     Scalar color = new  Scalar( 200,156,53 );
@@ -483,7 +606,7 @@ public class Helpers {
                     //break;
                 }
             }
-        }*/
+        }*//*
 
         Mat submats = new Mat();
         Mat origSubmats = new Mat();
@@ -604,8 +727,18 @@ public class Helpers {
                 blobMatsList.set(blobMatsList.indexOf(m), newMr);
             }
         }
-        Core.vconcat(blobMatsList, blobMats);
+        Core.vconcat(blobMatsList, blobMats);*/
 
+        Mat submats = new Mat();
+        Mat origSubmats = new Mat();
+        Mat blobMats = new Mat();
+        List<Mat> submatList = splittedSubmats.get(0);
+        List<Mat> origSubmatList = splittedSubmats.get(1);
+        List<Mat> blobMatsList = splittedSubmats.get(0);
+
+        Core.vconcat(submatList, submats);
+        Core.vconcat(origSubmatList, origSubmats);
+        Core.vconcat(blobMatsList, blobMats);
 
         List<Mat> outSubmatsList = new ArrayList<>();
         Mat margine = new Mat(origSubmats.rows(), 50, origSubmats.type());
@@ -620,47 +753,9 @@ public class Helpers {
         Core.hconcat(outSubmatsList, outSubmats);
 
         //ret.add(imgProcessed);
-        ret.add(imgProcessed);
+        ret.add(inImgProc);
         //ret.addAll(submats);
         ret.add(outSubmats);
-
-        /*MatOfPoint matOfPoint = new MatOfPoint();
-        KeyPoint[] keyPoints = kpsLARGE.toArray();
-
-        matOfPoint.setTo(kpsLARGE);
-        for (KeyPoint kp: keyPoints) {
-
-
-        }
-
-        Point center = new Point();
-        float[] radius = new float[1];
-        MatOfPoint2f matOfPoint2f = new MatOfPoint2f();
-        kpsLARGE.convertTo(matOfPoint2f, matOfPoint2f.type());*/
-        //Imgproc.minEnclosingCircle(matOfPoint2f, center, radius);
-
-        /*MatOfKeyPoint keyPointsM = new MatOfKeyPoint();
-        FeatureDetector fdM = FeatureDetector.create(FeatureDetector.SIMPLEBLOB);
-        fdM.read(paramsPath + "sbd.params.M.xml");
-        fdM.detect(imgProcess, keyPointsM);
-        List<KeyPoint> listKeyPointsM = keyPointsM.toList();
-        for (KeyPoint k : listKeyPointsM) {
-            int radius = (int) (Math.sqrt(k.size / Math.PI)*k.size/8);
-            Rect r = new Rect(new Point(k.pt.x-radius, k.pt.y-radius), new Size(2*radius, 2*radius));
-            Mat m = new Mat(imgProcess, r);
-            Mat element = Imgproc.getStructuringElement( Imgproc.CV_SHAPE_ELLIPSE, new Size(2*1 + 1, 2*1+1 ), new Point( 1, 1 ) );
-            for(int v = 0; v < ((int)k.size/9); v++) {
-                Imgproc.dilate(m, m, element, new Point(-1,-1), 1);
-            }
-        }
-        for (KeyPoint k:listKeyPointsM) {
-            int radius = (int) (Math.sqrt(k.size / Math.PI)*k.size/8);
-            Imgproc.circle(original_image, new Point(k.pt.x, k.pt.y), 1, new Scalar(0, 255, 0), 1); //p1 is colored violet
-            Imgproc.circle(original_image, new Point(k.pt.x, k.pt.y), radius, new Scalar(0, 255, 0), 1);
-
-            Imgproc.circle(imgProcess    , new Point(k.pt.x, k.pt.y), 1, new Scalar(255, 255, 255), 1); //p1 is colored violet
-            Imgproc.circle(imgProcess    , new Point(k.pt.x, k.pt.y), radius, new Scalar(0, 0, 0), 1); //p1 is colored violet
-        }*/
 
         Mat[] r = new Mat[ret.size()];
         ret.toArray(r);

@@ -91,7 +91,7 @@ public class Step2 extends AppCompatActivity {
             //result = Helpers.findBlob(imgToProcess);
             //Mat imgProcessed = (Mat)result.get(0);
             //numberOfBlob = (int)result.get(1);
-            imgToProcess = Helpers.cropArea(imgToProcess);
+            //imgToProcess = Helpers.cropArea(imgToProcess);
             Bitmap bmpOut = Bitmap.createBitmap(imgToProcess.cols(), imgToProcess.rows(), Bitmap.Config.ARGB_8888);
             Utils.matToBitmap(imgToProcess, bmpOut);
             return bmpOut;
