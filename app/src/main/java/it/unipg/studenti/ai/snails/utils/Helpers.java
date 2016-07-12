@@ -438,7 +438,7 @@ public class Helpers {
         return matOfPoint2fContoursPoly;
     }
 
-    private static List<List<Mat>> SplitInSubmats(Mat input_image, Mat original_image, List<KeyPoint> blobDetectedKpList ){
+    private static List<List<Mat>> SplitInSubmats(Mat input_image, Mat original_image, List<KeyPoint> blobDetectedKpList, List<Pair<Rect, KeyPoint>> outRectKpPairs ){
         List<MatOfPoint> contours = new ArrayList<>();
         Mat imgToFindContours = new Mat();
         input_image.copyTo(imgToFindContours);
@@ -458,7 +458,7 @@ public class Helpers {
             //matOfPointList.add(matOfPoint);
         }
 
-        List<Pair<Rect, KeyPoint>> rectKpPairs = new ArrayList<>();
+        //outRectKpPairs = new ArrayList<>();
         for (KeyPoint kp : blobDetectedKpList) {
             double minDist = 10000000;
             Rect minDistRect = null;
@@ -479,7 +479,7 @@ public class Helpers {
                 }
             }
             if(minDistRect!=null) {
-                rectKpPairs.add(new Pair<Rect, KeyPoint>(minDistRect, kp));
+                outRectKpPairs.add(new Pair<Rect, KeyPoint>(minDistRect, kp));
                 boundRect.set(boundRect.indexOf(minDistRect), null);
             }
         }
@@ -487,9 +487,10 @@ public class Helpers {
         List<List<Mat>> ret = new ArrayList<>();
         ret.add(new ArrayList<Mat>());
         ret.add(new ArrayList<Mat>());
+        ret.add(new ArrayList<Mat>());
 
         int maxColsNumber = 0;
-        for (Pair pair : rectKpPairs) {
+        for (Pair pair : outRectKpPairs) {
             Rect rect = (Rect) pair.first;
             KeyPoint kp = (KeyPoint) pair.second;
             if (rect.area() < (input_image.size().area() / 10 * 9)) {
@@ -510,29 +511,23 @@ public class Helpers {
                 for (MatOfPoint c : snailCnt) {
                     if(c.rows() < tmp) {
                         tmp = c.rows();
-                        idx = contours.indexOf(c);
+                        idx = snailCnt.indexOf(c);
                     }
                 }
-//                Mat mask = new Mat(mm.size(), CvType.CV_8UC1, new Scalar(0,0,0));
-//                Imgproc.drawContours(mask, snailCnt, idx, new Scalar(255,255,255),1);
-//                if(Imgproc.pointPolygonTest(snailCnt2f, kp.pt, false) > 0){
-//                    Scalar colourMM = new Scalar(mm.get(mm.rows()/2, mm.cols()/2));
-//                    if(colourMM.equals(new Scalar(0,0,0))){
-//                        Imgproc.floodFill(mask, new Mat(), kp.pt , new Scalar(255,255,255) );
-//                    }
-//                }
-//                Core.bitwise_not(mask,mask);
-//                Mat maskedImage = new Mat(mm.size(), mm.type());
-//                Core.bitwise_and(mm, mask, mm);
+                Mat mask = new Mat(mm.size(), CvType.CV_8UC1, new Scalar(255,255,255));
+                Mat l = new Mat(mm.size(), CvType.CV_8UC1);
+                Imgproc.drawContours(mask, snailCnt, idx, new Scalar(0,0,0),1);
+                Imgproc.floodFill(mask, new Mat(), new Point(0,0) , new Scalar(0,0,0) );
+                Core.bitwise_not(mask, mask);
+                Core.bitwise_or(mm, mask, l);
                 ret.get(0).add(mm);
-
-
 
                 Mat n = original_image.submat(new Rect(rect.x - 15, rect.y - 15, rect.width + 30, rect.height + 30));
                 Mat o = new Mat();
                 Imgproc.cvtColor(n, o, Imgproc.COLOR_BGR2GRAY, 1);
-                Imgproc.putText(o, "" + (rectKpPairs.indexOf(pair)+1) , new Point(0,20), Core.FONT_HERSHEY_COMPLEX,0.7,new Scalar(255,255,255),2);
+                Imgproc.putText(o, "" + (outRectKpPairs.indexOf(pair)+1) , new Point(0,20), Core.FONT_HERSHEY_COMPLEX,0.7,new Scalar(255,255,255),2);
                 ret.get(1).add(o);
+                ret.get(2).add(l);
                 //origSubmatList.add(o);
 
                 if (mm.cols() > maxColsNumber) {
@@ -543,7 +538,7 @@ public class Helpers {
 
         for (Mat m: ret.get(0)) {
             int mLastCol = m.cols();
-            if(mLastCol < maxColsNumber){
+            if(mLastCol <= maxColsNumber){
                 Mat col = new Mat(m.rows(), maxColsNumber-mLastCol, m.type());
                 col.setTo(new Scalar(255));
                 List<Mat> cols = new ArrayList<>();
@@ -565,7 +560,7 @@ public class Helpers {
 
         for (Mat m: ret.get(1)) {
             int mLastCol = m.cols();
-            if(mLastCol < maxColsNumber){
+            if(mLastCol <= maxColsNumber){
                 Mat col = new Mat(m.rows(), maxColsNumber-mLastCol, m.type());
                 col.setTo(new Scalar(255));
                 List<Mat> cols = new ArrayList<>();
@@ -581,6 +576,30 @@ public class Helpers {
                 rows.add(row);
                 Core.vconcat(rows, newMr);
                 ret.get(1).set(ret.get(1).indexOf(m), newMr);
+                //origSubmatList.set(origSubmatList.indexOf(m), newMr);
+            }
+        }
+
+        for (Mat m: ret.get(2)) {
+            int mLastCol = m.cols();
+            Log.i("ret.get2_"+(ret.get(2).indexOf(m)+1), "numbers of cols is "+ mLastCol + " and maxColsNumber is "+ maxColsNumber );
+            if(mLastCol <= maxColsNumber){
+                Mat col = new Mat(m.rows(), maxColsNumber-mLastCol, m.type());
+                col.setTo(new Scalar(255));
+                List<Mat> cols = new ArrayList<>();
+                cols.add(m);
+                cols.add(col);
+                Mat newMc = new Mat();
+                Core.hconcat(cols, newMc);
+                Mat row = new Mat(40,newMc.cols(), newMc.type());
+                row.setTo(new Scalar(255));
+                List<Mat> rows = new ArrayList<>();
+                Mat newMr = new Mat();
+                rows.add(newMc);
+                rows.add(row);
+                Core.vconcat(rows, newMr);
+                ret.get(2).set(ret.get(2).indexOf(m), newMr);
+                Log.i("ret.get2_"+(ret.get(2).indexOf(m)+1), "numbers of black pixels is "+ ((m.rows() * m.cols()) - Core.countNonZero(m)) );
                 //origSubmatList.set(origSubmatList.indexOf(m), newMr);
             }
         }
@@ -610,194 +629,45 @@ public class Helpers {
         allKps.addAll(kpsSnails.toList());
         allKps.addAll(kpsLargeSnails.toList());
 
-        List<List<Mat>> splittedSubmats = SplitInSubmats(input_image, origImgProc, allKps);
-
-        // da qui
-        /*List<MatOfPoint> contours = new ArrayList<>();
-        Imgproc.findContours(input_image, contours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE, new Point(0, 0) );
-
-        /// Approximate contours to polygons + get bounding rects and circles
-        List<Rect> boundRect = new ArrayList<>(contours.size());
-
-        List<MatOfPoint> matOfPointList = new ArrayList<>();
-        MatOfPoint2f matOfPoint2fContoursPoly = new MatOfPoint2f();
-
-        for( int i = 0; i < contours.size(); i++ )
-        {
-            MatOfPoint2f matOfPoint2fContours = new MatOfPoint2f(contours.get(i).toArray());
-
-            Imgproc.approxPolyDP(matOfPoint2fContours, matOfPoint2fContoursPoly , 3., true );
-
-            MatOfPoint matOfPoint = new MatOfPoint();
-            matOfPoint2fContoursPoly.convertTo(matOfPoint, CvType.CV_32S);
-            boundRect.add(i, Imgproc.boundingRect( matOfPoint ) );
-
-            //Imgproc.minEnclosingCircle( matOfPoint2fContoursPoly, center.get(i), radius.get(i) );
-
-            matOfPointList.add(matOfPoint);
-        }
-
-        /// Draw polygonal contour + bonding rects + circles
-        *//*Mat drawing = Mat.zeros(imgProcess.size(), CvType.CV_8UC3);
-        for( int i = 0; i< contours.size(); i++ )
-        {
-            Scalar color = new  Scalar( 200,156,53 );
-            Imgproc.drawContours(imgProcess, matOfPointList, i, color, 1);
-            Imgproc.rectangle(imgProcess, boundRect.get(i).tl(), boundRect.get(i).br(), color, 2, 8, 0 );
-        }*//*
-
-
-        *//*List<Rect> secBoundRect = new ArrayList<>(boundRect);
-        for (Rect r:secBoundRect) {
-
-        }*//*
-
-
-        //Mat element = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_ELLIPSE, new Size(2 * 1 + 1, 2 * 1 + 1), new Point(1, 1));
-
-        *//*for(KeyPoint kp:kpsLargeArray){
-            for (Rect rect:boundRect) {
-                if(kp.pt.inside(rect) && (rect.area()< (original_image.size().area()/10*9))){
-                    Scalar color = new  Scalar( 200,156,53 );
-                    //Imgproc.drawContours(imgProcess, matOfPointList, boundRect.indexOf(rect), color, 15);
-                    //Imgproc.rectangle(imgProcess, rect.tl(), rect.br(), color, 2, 8, 0 );
-                    Mat m = imgProcess.submat(rect);
-                    int iterations = (int) kp.size/10;
-                    Imgproc.dilate(m, m, element, new Point(-1,-1), iterations);
-                    submats.add(m);
-                    //break;
-                }
-            }
-        }*//*
-
-        Mat submats = new Mat();
-        Mat origSubmats = new Mat();
-        Mat blobMats = new Mat();
-        List<Mat> submatList = new ArrayList<>();
-        List<Mat> origSubmatList = new ArrayList<>();
-        List<Mat> blobMatsList = new ArrayList<>();
-        List<KeyPoint> kpsList = new ArrayList<>();
-        kpsList.addAll(kpsSmallList);
-        kpsList.addAll(kpsMediumList);
-        kpsList.addAll(kpsLargeList);
-
-        List<Rect> boundRectBuoni = new ArrayList<>();
-
-        for (Rect rect : boundRect) {
-            for (KeyPoint kp : kpsList) {
-                if(kp.pt.inside(rect)){
-                    boundRectBuoni.add(rect);
-                }
-                break;
-            }
-        }
-
-        int maxColsNumber = 0;
-        for (Rect rect : boundRectBuoni) {
-            if (rect.area() < (original_image.size().area() / 10 * 9)) {
-                //Mat l = imgProcessed.submat(rect);
-                //MatOfKeyPoint blobDetected = SimpleBlobDetector(l, "sbd.params.xml");
-
-                Mat m = imgProcessed2.submat(new Rect(rect.x - 15, rect.y - 15, rect.width + 30, rect.height + 30));
-                //int iterations = (int) rect.area()/100;
-                //Imgproc.dilate(m, m, element, new Point(-1,-1), iterations);
-                submatList.add(m);
-
-                //Imgproc.rectangle(original_image, rect.tl(), rect.br(), new Scalar(0,255,0), 1);
-                //Mat n = original_image.submat(rect);
-                Mat n = original_image.submat(new Rect(rect.x - 15, rect.y - 15, rect.width + 30, rect.height + 30));
-                Mat o = new Mat();
-                Imgproc.cvtColor(n, o, Imgproc.COLOR_BGR2GRAY, 1);
-                origSubmatList.add(o);
-
-                Mat p = imgProcessed.submat(new Rect(rect.x - 15, rect.y - 15, rect.width + 30, rect.height + 30));
-                //Features2d.drawKeypoints(o, blobDetected, p,new Scalar(250, 250, 250), Features2d.DRAW_RICH_KEYPOINTS );
-                blobMatsList.add(p);
-
-                if (m.cols() > maxColsNumber) {
-                    maxColsNumber = m.cols();
-                }
-            }
-        }
-
-        for (Mat m: submatList) {
-            int mLastCol = m.cols();
-            if(mLastCol < maxColsNumber){
-                Mat col = new Mat(m.rows(), maxColsNumber-mLastCol, m.type());
-                col.setTo(new Scalar(255));
-                List<Mat> cols = new ArrayList<>();
-                cols.add(m);
-                cols.add(col);
-                Mat newMc = new Mat();
-                Core.hconcat(cols, newMc);
-                Mat row = new Mat(40,newMc.cols(), newMc.type());
-                row.setTo(new Scalar(255));
-                List<Mat> rows = new ArrayList<>();
-                Mat newMr = new Mat();
-                rows.add(newMc);
-                rows.add(row);
-                Core.vconcat(rows, newMr);
-                submatList.set(submatList.indexOf(m), newMr);
-            }
-        }
-        Core.vconcat(submatList, submats);
-
-
-        for (Mat n: submatList) {
-            Mat m = origSubmatList.get(submatList.indexOf(n));
-            int mLastCol = m.cols();
-            if(mLastCol < maxColsNumber){
-                Mat col = new Mat(m.rows(), maxColsNumber-mLastCol, m.type());
-                col.setTo(new Scalar(255));
-                List<Mat> cols = new ArrayList<>();
-                cols.add(m);
-                cols.add(col);
-                Mat newMc = new Mat();
-                Core.hconcat(cols, newMc);
-                Mat row = new Mat(40,newMc.cols(), newMc.type());
-                row.setTo(new Scalar(255));
-                List<Mat> rows = new ArrayList<>();
-                Mat newMr = new Mat();
-                rows.add(newMc);
-                rows.add(row);
-                Core.vconcat(rows, newMr);
-                origSubmatList.set(origSubmatList.indexOf(m), newMr);
-            }
-        }
-        Core.vconcat(origSubmatList, origSubmats);
-
-
-        for (Mat n: submatList) {
-            Mat m = blobMatsList.get(submatList.indexOf(n));
-            Imgproc.cvtColor(m, m, Imgproc.COLOR_BGR2GRAY, 1);
-            int mLastCol = m.cols();
-            if(mLastCol < maxColsNumber){
-                Mat col = new Mat(m.rows(), maxColsNumber-mLastCol, m.type());
-                col.setTo(new Scalar(255));
-                List<Mat> cols = new ArrayList<>();
-                cols.add(m);
-                cols.add(col);
-                Mat newMc = new Mat();
-                Core.hconcat(cols, newMc);
-                Mat row = new Mat(40,newMc.cols(), newMc.type());
-                row.setTo(new Scalar(255));
-                List<Mat> rows = new ArrayList<>();
-                Mat newMr = new Mat();
-                rows.add(newMc);
-                rows.add(row);
-                Core.vconcat(rows, newMr);
-                blobMatsList.set(blobMatsList.indexOf(m), newMr);
-            }
-        }
-        Core.vconcat(blobMatsList, blobMats);*/
-
+        List<Pair<Rect, KeyPoint>> rectKpPairs = new ArrayList<>();
+        List<List<Mat>> splittedSubmats = SplitInSubmats(input_image, origImgProc, allKps, rectKpPairs);
         Mat submats = new Mat();
         Mat origSubmats = new Mat();
         Mat blobMats = new Mat();
         List<Mat> submatList = splittedSubmats.get(0);
         List<Mat> origSubmatList = splittedSubmats.get(1);
-        List<Mat> blobMatsList = splittedSubmats.get(0);
+        List<Mat> blobMatsList = splittedSubmats.get(2);
 
+        Mat outImgProc = new Mat();
+        input_image.copyTo(outImgProc);
+
+        for (Mat blobMat:blobMatsList) {
+            List<KeyPoint> kpList = new ArrayList<>(SimpleBlobDetector(blobMat, "blobs.params.xml").toList());
+            Log.i("blobMat_"+(blobMatsList.indexOf(blobMat)+1), "numbers of keypoints is "+kpList.size());
+            if(kpList.size() > 0){
+                //Imgproc.rectangle(blobMat, new Point(0,0), new Point(blobMat.rows(), blobMat.cols()),new Scalar(100,100,100) );
+                Mat element1 = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_ELLIPSE, new Size(2 * 2 + 1, 2 * 2 + 1), new Point(1, 1));
+                int TotalNumberOfPixels = blobMat.rows() * blobMat.cols();
+                int ZeroPixels = TotalNumberOfPixels - Core.countNonZero(blobMat);
+                int iterations = (100*ZeroPixels/50000) -7 ;
+                Log.i("blobMat_"+(blobMatsList.indexOf(blobMat)+1), "numbers of black pixels is "+ZeroPixels);
+                Log.i("blobMat_"+(blobMatsList.indexOf(blobMat)+1), "numbers of dilate iterations is "+iterations);
+                MatOfPoint2f snailCnt2f = myfindContours(blobMat);
+                MatOfPoint2f snailCnt2fDO;
+                int zoom = 0;
+                do {
+                    Imgproc.dilate(blobMat, blobMat, element1, new Point(-1,-1), iterations);
+                    snailCnt2fDO = myfindContours(blobMat);
+                    zoom++; // provare a scalare l'immagine per aumentare la sua area
+                } while (snailCnt2f.rows() <= snailCnt2fDO.rows());
+
+                Mat modMat = outImgProc.submat(rectKpPairs.get(blobMatsList.indexOf(blobMat)).first);
+                Mat blobMatMod = new Mat();
+                blobMat.copyTo(blobMatMod);
+                Imgproc.resize(blobMatMod, blobMatMod, modMat.size());
+                blobMatMod.copyTo(modMat);
+            }
+        }
         Core.vconcat(submatList, submats);
         Core.vconcat(origSubmatList, origSubmats);
         Core.vconcat(blobMatsList, blobMats);
@@ -814,10 +684,22 @@ public class Helpers {
         Mat outSubmats = new Mat();
         Core.hconcat(outSubmatsList, outSubmats);
 
+        MatOfKeyPoint kpsAllSnails = SimpleBlobDetector(outImgProc, "lastSnails.params.xml");
+        Features2d.drawKeypoints(outImgProc, kpsAllSnails, outImgProc, new Scalar(0,255,0),Features2d.DRAW_RICH_KEYPOINTS);
+        Mat textRes = new Mat(100, outImgProc.cols(), outImgProc.type(), new Scalar(255,255,255));
+        Imgproc.putText(textRes, "Total snails: " + kpsAllSnails.rows(), new Point(20,60),Core.FONT_HERSHEY_SIMPLEX,3,new Scalar(0,0,0),5);
+
+        List<Mat> endOutMat = new ArrayList<>();
+        endOutMat.add(outImgProc);
+        endOutMat.add(textRes);
+        Core.vconcat(endOutMat, outImgProc);
+
+
         //ret.add(imgProcessed);
         ret.add(inImgProc);
         //ret.addAll(submats);
         ret.add(outSubmats);
+        ret.add(outImgProc);
 
         Mat[] r = new Mat[ret.size()];
         ret.toArray(r);

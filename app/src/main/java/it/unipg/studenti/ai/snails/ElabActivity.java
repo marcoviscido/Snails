@@ -140,6 +140,8 @@ public class ElabActivity extends AppCompatActivity {
             ret.add(Bitmap.createBitmap(snailsDetect[1].cols(), snailsDetect[1].rows(), Bitmap.Config.ARGB_8888));
             Utils.matToBitmap(snailsDetect[1], ret.get(4));
 
+            ret.add(Bitmap.createBitmap(snailsDetect[2].cols(), snailsDetect[2].rows(), Bitmap.Config.ARGB_8888));
+            Utils.matToBitmap(snailsDetect[2], ret.get(5));
 
             /*Mat funny = Helpers.FunnyElab(imgProcessed[0]);
             ret.add(Bitmap.createBitmap(funny.cols(), funny.rows(), Bitmap.Config.ARGB_8888));
@@ -168,9 +170,9 @@ public class ElabActivity extends AppCompatActivity {
             textView6.setText("submats:");
             imgView6.setImage(ImageSource.bitmap(result.get(4)));
             //imgView6.setImageBitmap(result.get(4));
-            /*textView7.setText("test submat:");
+            textView7.setText("Out:");
             imgView7.setImage(ImageSource.bitmap(result.get(5)));
-            textView8.setText("test submat:");
+            /*textView8.setText("test submat:");
             imgView8.setImage(ImageSource.bitmap(result.get(6)));
             textView9.setText("test submat:");
             imgView9.setImage(ImageSource.bitmap(result.get(7)));*/
