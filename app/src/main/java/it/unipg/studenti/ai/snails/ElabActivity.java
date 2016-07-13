@@ -132,7 +132,7 @@ public class ElabActivity extends AppCompatActivity {
             ret.add(Bitmap.createBitmap(snailsPreDetect.cols(), snailsPreDetect.rows(), Bitmap.Config.ARGB_8888));
             Utils.matToBitmap(snailsPreDetect, ret.get(2));
 
-            Mat[] snailsDetect = Helpers.SnailsDetect(snailsPreDetect, mats[0]);
+            Mat[] snailsDetect = Helpers.SnailsDetect(snailsPreDetect, mats[0], getApplicationContext().getFilesDir().getAbsolutePath());
 
             ret.add(Bitmap.createBitmap(snailsDetect[0].cols(), snailsDetect[0].rows(), Bitmap.Config.ARGB_8888));
             Utils.matToBitmap(snailsDetect[0], ret.get(3));

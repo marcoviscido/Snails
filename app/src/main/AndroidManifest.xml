@@ -18,10 +18,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Photo" />
-        <activity android:name=".Step1" />
-        <activity android:name=".Step2" />
-        <activity android:name=".Step3" />
         <activity android:name=".ElabActivity"></activity>
     </application>
 

@@ -16,6 +16,8 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
 import java.util.UUID;
 
+import it.unipg.studenti.ai.snails.utils.Helpers;
+
 public class MainActivity extends AppCompatActivity {
 
     private static int RESULT_LOAD_IMG = 1;
@@ -27,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Helpers.initParams(getApplicationContext());
 
         imgView = (SubsamplingScaleImageView) findViewById(R.id.imgView);
 
