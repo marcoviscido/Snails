@@ -17,7 +17,6 @@
             android:id="@+id/textView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="textView1"
             android:textAppearance="?android:attr/textAppearanceSmall" />
         <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
             android:id="@+id/imgView1"
@@ -30,7 +29,6 @@
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="textView2"
             android:textAppearance="?android:attr/textAppearanceSmall" />
         <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
             android:id="@+id/imgView2"
@@ -43,7 +41,6 @@
             android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="textView3"
             android:textAppearance="?android:attr/textAppearanceSmall" />
         <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
             android:id="@+id/imgView3"
@@ -56,7 +53,6 @@
             android:id="@+id/textView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="textView4"
             android:textAppearance="?android:attr/textAppearanceSmall" />
         <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
             android:id="@+id/imgView4"
@@ -69,7 +65,6 @@
             android:id="@+id/textView5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="textView5"
             android:textAppearance="?android:attr/textAppearanceSmall" />
         <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
             android:id="@+id/imgView5"
@@ -82,7 +77,6 @@
             android:id="@+id/textView6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="textView6"
             android:textAppearance="?android:attr/textAppearanceSmall" />
         <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
             android:id="@+id/imgView6"
@@ -97,7 +91,6 @@
             android:id="@+id/textView7"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="textView7"
             android:textAppearance="?android:attr/textAppearanceSmall" />
         <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
             android:id="@+id/imgView7"
@@ -110,7 +103,6 @@
             android:id="@+id/textView8"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="textView8"
             android:textAppearance="?android:attr/textAppearanceSmall" />
         <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
             android:id="@+id/imgView8"
@@ -123,7 +115,6 @@
             android:id="@+id/textView9"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="textView9"
             android:textAppearance="?android:attr/textAppearanceSmall" />
         <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
             android:id="@+id/imgView9"
@@ -136,7 +127,6 @@
             android:id="@+id/textView10"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="textView10"
             android:textAppearance="?android:attr/textAppearanceSmall" />
         <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
             android:id="@+id/imgView10"
@@ -144,7 +134,6 @@
             android:layout_height="match_parent"
 
             />
-
 
     </LinearLayout>
 </ScrollView>

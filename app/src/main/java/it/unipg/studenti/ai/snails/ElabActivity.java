@@ -70,6 +70,7 @@ public class ElabActivity extends AppCompatActivity {
         progress = new ProgressDialog(this);
         progress.setTitle("Loading");
         progress.setMessage("Wait while loading...");
+        progress.setCanceledOnTouchOutside(false);
 
         textView1 = (TextView)findViewById(R.id.textView1);
         textView2 = (TextView)findViewById(R.id.textView2);
@@ -176,7 +177,7 @@ public class ElabActivity extends AppCompatActivity {
             imgView8.setImage(ImageSource.bitmap(result.get(6)));
             textView9.setText("test submat:");
             imgView9.setImage(ImageSource.bitmap(result.get(7)));*/
-            try {
+            /*try {
                 //FileOutputStream fos = openFileOutput(filename, MODE_PRIVATE);
                 File f = new File("/mnt/shared/android_shared/", UUID.randomUUID().toString()+".jpg");
                 FileOutputStream fos = new FileOutputStream(f);
@@ -186,7 +187,7 @@ public class ElabActivity extends AppCompatActivity {
                 //System.out.println("Salvato in: "+getFilesDir()+"/"+filename);
             } catch (Exception e) {
                 e.printStackTrace();
-            }
+            }*/
             progress.dismiss();
         }
     }

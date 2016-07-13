@@ -407,7 +407,7 @@ public class Helpers {
         MatOfKeyPoint kpsAllSnails = SimpleBlobDetector(outImgProc, appPath, "/lastSnails.params.xml");
         Features2d.drawKeypoints(outImgProc, kpsAllSnails, outImgProc, new Scalar(0,255,0),Features2d.DRAW_RICH_KEYPOINTS);
         Mat textRes = new Mat(100, outImgProc.cols(), outImgProc.type(), new Scalar(255,255,255));
-        Imgproc.putText(textRes, "Total snails: " + kpsAllSnails.rows(), new Point(20,60),Core.FONT_HERSHEY_SIMPLEX,3,new Scalar(0,0,0),5);
+        Imgproc.putText(textRes, "Total snails: " + kpsAllSnails.rows(), new Point(20,80),Core.FONT_HERSHEY_SIMPLEX,3,new Scalar(0,0,0),5);
 
         List<Mat> endOutMat = new ArrayList<>();
         endOutMat.add(outImgProc);
