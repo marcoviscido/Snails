@@ -11,7 +11,7 @@
 <blobColor>0</blobColor>
 
 <filterByArea>1</filterByArea>
-<minArea>40.</minArea>
+<minArea>500.</minArea>
 <maxArea>4500.</maxArea>
 
 <filterByCircularity>0</filterByCircularity>
@@ -19,7 +19,7 @@
 <maxCircularity>3.4028234663852886e+038</maxCircularity>
 
 <filterByInertia>1</filterByInertia>
-<minInertiaRatio>1.5104235348589500e-001</minInertiaRatio>
+<minInertiaRatio>1.3104235348589500e-001</minInertiaRatio>
 <maxInertiaRatio>3.4028234663852886e+038</maxInertiaRatio>
 
 <filterByConvexity>0</filterByConvexity>

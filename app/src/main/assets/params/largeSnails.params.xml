@@ -5,14 +5,14 @@
 <maxThreshold>220.</maxThreshold>
 
 <minRepeatability>5</minRepeatability>
-<minDistBetweenBlobs>65.</minDistBetweenBlobs>
+<minDistBetweenBlobs>40.</minDistBetweenBlobs>
 
 <filterByColor>1</filterByColor>
 <blobColor>0</blobColor>
 
 <filterByArea>1</filterByArea>
 <minArea>4500.</minArea>
-<maxArea>50000.</maxArea>
+<maxArea>80000.</maxArea>
 
 <filterByCircularity>0</filterByCircularity>
 <minCircularity>8.0000001192092896e-001</minCircularity>

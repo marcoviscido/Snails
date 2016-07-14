@@ -40,19 +40,20 @@ public class Helpers {
             String[] files = am.list("params");
             for (String file:files) {
                 File dstFile = new File(destPath, file);
-                if(!dstFile.exists()){
-                    InputStream in = am.open("params/" + file);
-                    dstFile.createNewFile();
-                    OutputStream out = new FileOutputStream(dstFile);
-                    byte[] buffer = new byte[1024];
-                    int read;
-                    while((read = in.read(buffer)) != -1){
-                        out.write(buffer, 0, read);
-                    }
-                    in.close();
-                    out.flush();
-                    out.close();
+                if(dstFile.exists()){
+                    dstFile.delete();
                 }
+                InputStream in = am.open("params/" + file);
+                dstFile.createNewFile();
+                OutputStream out = new FileOutputStream(dstFile);
+                byte[] buffer = new byte[1024];
+                int read;
+                while((read = in.read(buffer)) != -1){
+                    out.write(buffer, 0, read);
+                }
+                in.close();
+                out.flush();
+                out.close();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -141,29 +142,6 @@ public class Helpers {
         return Math.sqrt((X_Diff * X_Diff) + (Y_Diff * Y_Diff));
     }
 
-    private static MatOfPoint2f myfindContours(Mat inputImg, int mode, int method, List<MatOfPoint> matOfPointList){
-        if(matOfPointList==null) matOfPointList = new ArrayList<>();
-        Mat imgToFindContours = new Mat();
-        inputImg.copyTo(imgToFindContours);
-        List<MatOfPoint> contours = new ArrayList<>();
-        //Imgproc.findContours(imgToFindContours, contours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE, new Point(0, 0) );
-        Imgproc.findContours(imgToFindContours, contours, new Mat(), mode, method, new Point(0, 0) );
-        //List<Rect> boundRect = new ArrayList<>(contours.size());
-        //List<MatOfPoint> matOfPointList = new ArrayList<>();
-        MatOfPoint2f matOfPoint2fContoursPoly = new MatOfPoint2f();
-        for( int i = 0; i < contours.size(); i++ )
-        {
-            MatOfPoint2f matOfPoint2fContours = new MatOfPoint2f(contours.get(i).toArray());
-            Imgproc.approxPolyDP(matOfPoint2fContours, matOfPoint2fContoursPoly , 1., true );
-            MatOfPoint matOfPoint = new MatOfPoint();
-            matOfPoint2fContoursPoly.convertTo(matOfPoint, CvType.CV_32S);
-            //Rect rect = Imgproc.boundingRect( matOfPoint );
-            //boundRect.add(i, rect);
-            matOfPointList.add(matOfPoint);
-        }
-        return matOfPoint2fContoursPoly;
-    }
-
     private static int SplitInSubmats(Mat input_image, Mat original_image, List<BlobDetected> blobDetectedList ) {
         /// preset delle strutture dati di input/output
         List<KeyPoint> inKpsList = new ArrayList<>();
@@ -216,7 +194,7 @@ public class Helpers {
                 blobDetectedList.get(inKpsList.indexOf(kp)).contour = minContour;
                 boundRect.set(boundRect.indexOf(minDistRect), null);
             } else {
-                blobDetectedList.get(inKpsList.indexOf(kp)).rect = new Rect(kp.pt, new Size(Math.sqrt(kp.size)*4,Math.sqrt(kp.size)*4));
+                blobDetectedList.get(inKpsList.indexOf(kp)).rect = new Rect(kp.pt, new Size(Math.sqrt(kp.size)*5,Math.sqrt(kp.size)*5));
                 blobDetectedList.get(inKpsList.indexOf(kp)).contour = null;
             }
         }
@@ -356,16 +334,22 @@ public class Helpers {
         Mat outSubmats = new Mat();
         Core.hconcat(outSubmatsList, outSubmats);
 
-        Mat filteredLargeBlobsMat = filterLargeBlobsMat(input_image, blobsList);
-        /*debugMat = new Mat();
-        filteredLargeBlobsMat.copyTo(debugMat);*/
-
-        MatOfKeyPoint kpsFilteredLargeSnails = SimpleBlobDetector(filteredLargeBlobsMat, appPath, "/lastSnails.params.xml");
-        List<KeyPoint> kpsFilteredLargeSnailsList = new ArrayList<>(kpsFilteredLargeSnails.toList());
         Features2d.drawKeypoints(outImgProc, kpsSnails, outImgProc, new Scalar(0,0,255),Features2d.DRAW_RICH_KEYPOINTS);
-        Features2d.drawKeypoints(outImgProc, kpsFilteredLargeSnails, outImgProc, new Scalar(0,255,0),Features2d.DRAW_RICH_KEYPOINTS);
+        int numFilteredImages = 0;
+        List<KeyPoint> kpsFilteredLargeSnailsList = new ArrayList<>();
+        if(kpsLargeSnailsList.size()>0) {
+            Mat filteredLargeBlobsMat = filterLargeBlobsMat(input_image, blobsList);
+            /////////
+            //debugMat = new Mat();
+            //filteredLargeBlobsMat.copyTo(debugMat);
+            /////////
+            MatOfKeyPoint kpsFilteredLargeSnails = SimpleBlobDetector(filteredLargeBlobsMat, appPath, "/lastSnails.params.xml");
+            kpsFilteredLargeSnailsList.addAll(kpsFilteredLargeSnails.toList());
+            Features2d.drawKeypoints(outImgProc, kpsFilteredLargeSnails, outImgProc, new Scalar(0, 255, 0), Features2d.DRAW_RICH_KEYPOINTS);
+            numFilteredImages = kpsFilteredLargeSnailsList.size();
+        }
         Mat textRes = new Mat(100, outImgProc.cols(), outImgProc.type(), new Scalar(255,255,255));
-        Imgproc.putText(textRes, "Total snails: "+kpsSnailsList.size()+"+"+kpsFilteredLargeSnailsList.size()+"="+(kpsSnailsList.size()+kpsFilteredLargeSnailsList.size()) , new Point(20,80),Core.FONT_HERSHEY_SIMPLEX,2.5,new Scalar(0,0,0),5);
+        Imgproc.putText(textRes, "Total snails: "+kpsSnailsList.size()+"+"+numFilteredImages+"="+(kpsSnailsList.size()+numFilteredImages) , new Point(20,80),Core.FONT_HERSHEY_SIMPLEX,2.5,new Scalar(0,0,0),5);
 
         List<Mat> endOutMat = new ArrayList<>();
         endOutMat.add(outImgProc);
@@ -390,8 +374,10 @@ public class Helpers {
             Imgproc.putText(text, ""+numToDisplay , new Point(1, 10), Core.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(255, 255, 255), 2);
             numToDisplay++;
         }
+        /////////
         debugMat = new Mat();
         origWithNum.copyTo(debugMat);
+        /////////
 
         //ret.add(imgProcessed);
         ret.add(inImgProc);
@@ -411,28 +397,30 @@ public class Helpers {
 
     private static Mat filterLargeBlobsMat(Mat input_image, List<BlobDetected> blobsList){
         Mat element1 = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_ELLIPSE, new Size(2 * 2 + 1, 2 * 2 + 1), new Point(1, 1));
-        Mat ret = new Mat();
-        input_image.copyTo(ret);
-        Mat m;
+        Mat ret = new Mat(input_image.size(), input_image.type(), new Scalar(255,255,255));
+        //input_image.copyTo(ret);
+        Mat m, r;
         Rect foundRect;
 
         for (BlobDetected bd:blobsList) {
-            if(bd.contour!=null) {
+            if(bd.contour!=null && bd.contour.rows()>=5) {
                 MatOfPoint2f contour2f = new MatOfPoint2f(bd.contour.toArray());
                 RotatedRect frr = Imgproc.fitEllipse(contour2f);
                 foundRect = frr.boundingRect();
             } else {
                 foundRect = bd.rect;
             }
-            m = ret.submat(foundRect);
+            m = input_image.submat(foundRect);
+            r = ret.submat(foundRect);
 
             if(!bd.large){
-                m.setTo(new Scalar(255,255,255));
+                //m.setTo(new Scalar(255,255,255));
             } else {
-                int TotalNumberOfPixels = m.rows() * m.cols();
-                int ZeroPixels = TotalNumberOfPixels - Core.countNonZero(m);
+                m.copyTo(r);
+                int TotalNumberOfPixels = r.rows() * r.cols();
+                int ZeroPixels = TotalNumberOfPixels - Core.countNonZero(r);
                 int iterations = ZeroPixels/1200;
-                Imgproc.dilate(m, m, element1, new Point(-1,-1), iterations);
+                Imgproc.dilate(r, r, element1, new Point(-1,-1), iterations);
             }
         }
         return ret;
