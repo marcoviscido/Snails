@@ -18,4 +18,5 @@ public class BlobDetected {
     public Mat binaryMat;
     public Mat origMat;
     public boolean large;
+    public int numToDisplay;
 }
