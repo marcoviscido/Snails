@@ -150,9 +150,9 @@ public class ElabActivity extends AppCompatActivity {
             ret.add(Bitmap.createBitmap(snailsDetect[3].cols(), snailsDetect[3].rows(), bitmapConfig));
             Utils.matToBitmap(snailsDetect[3], ret.get(6));
 
-            /*Mat funny = Helpers.FunnyElab(imgProcessed[0]);
-            ret.add(Bitmap.createBitmap(funny.cols(), funny.rows(), bitmapConfig));
-            Utils.matToBitmap(funny, ret.get(7));*/
+            //funnyElab
+            ret.add(Bitmap.createBitmap(snailsDetect[4].cols(), snailsDetect[4].rows(), bitmapConfig));
+            Utils.matToBitmap(snailsDetect[4], ret.get(7));
 
             return ret;
         }
@@ -181,8 +181,8 @@ public class ElabActivity extends AppCompatActivity {
             imgView7.setImage(ImageSource.bitmap(result.get(5)));
             textView8.setText("Output:");
             imgView8.setImage(ImageSource.bitmap(result.get(6)));
-            /*textView9.setText("test submat:");
-            imgView9.setImage(ImageSource.bitmap(result.get(7)));*/
+            textView9.setText("Snails Art:");
+            imgView9.setImage(ImageSource.bitmap(result.get(7)));
             /*try {
                 //FileOutputStream fos = openFileOutput(filename, MODE_PRIVATE);
                 File f = new File("/mnt/shared/android_shared/", UUID.randomUUID().toString()+".jpg");

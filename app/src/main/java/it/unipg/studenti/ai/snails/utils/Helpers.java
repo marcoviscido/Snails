@@ -27,7 +27,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Helpers {
 
@@ -375,19 +377,17 @@ public class Helpers {
             numToDisplay++;
         }
         /////////
-        debugMat = new Mat();
-        origWithNum.copyTo(debugMat);
+        //debugMat = new Mat();
+        //origWithNum.copyTo(debugMat);
         /////////
-
-        //ret.add(imgProcessed);
         ret.add(inImgProc);
-        //ret.addAll(submats);
         ret.add(outSubmats);
         ret.add(outImgProc);
+        ret.add(origWithNum);
 
-        if(debugMat==null){
-            debugMat = new Mat(1,1,CvType.CV_8UC1,new Scalar(255,255,255));
-        }
+        //if(debugMat==null){
+            debugMat = FunnyElab(original_image, blobsList);
+        //}
         ret.add(debugMat);
 
         Mat[] r = new Mat[ret.size()];
@@ -426,25 +426,72 @@ public class Helpers {
         return ret;
     }
 
-    public static Mat FunnyElab(Mat src){
+    public static Mat FunnyElab(Mat src, List<BlobDetected> blobDetectedList){
+        List<BlobDetected> smallSnails = new ArrayList<>();
+        for(BlobDetected bd : blobDetectedList){
+            if(!bd.large){
+                smallSnails.add(bd);
+            }
+        }
         Mat ret = new Mat();
         Mat element = Imgproc.getStructuringElement(Imgproc.CV_SHAPE_ELLIPSE, new Size(2 * 1 + 1, 2 * 1 + 1), new Point(1, 1));
         List<Mat> dstCh = new ArrayList<>();
+        Imgproc.cvtColor(src,src,Imgproc.COLOR_BGRA2BGR);
         Core.split(src, dstCh);
 
-        Imgproc.adaptiveThreshold(dstCh.get(0), dstCh.get(0), 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 521, 0);
-        Imgproc.morphologyEx(dstCh.get(0), dstCh.get(0),Imgproc.MORPH_GRADIENT, element );
+        //Imgproc.adaptiveThreshold(dstCh.get(0), dstCh.get(0), 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 521, 0);
+        //Imgproc.morphologyEx(dstCh.get(0), dstCh.get(0),Imgproc.MORPH_GRADIENT, element );
 
-        Imgproc.adaptiveThreshold(dstCh.get(1), dstCh.get(1), 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 3, 0);
-        Imgproc.GaussianBlur(dstCh.get(1), dstCh.get(1),new Size(3,3), 33);
-        Imgproc.threshold(dstCh.get(1), dstCh.get(1), 130, 255, Imgproc.THRESH_BINARY);
+        //Imgproc.adaptiveThreshold(dstCh.get(1), dstCh.get(1), 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 3, 0);
+        //Imgproc.GaussianBlur(dstCh.get(1), dstCh.get(1),new Size(3,3), 33);
+        //Imgproc.threshold(dstCh.get(1), dstCh.get(1), 130, 255, Imgproc.THRESH_BINARY);
 
-        Imgproc.adaptiveThreshold(dstCh.get(2), dstCh.get(2), 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 521, 0);
-        Imgproc.morphologyEx(dstCh.get(2), dstCh.get(2), Imgproc.MORPH_OPEN, element, new Point(0,0), 2);
-        Imgproc.dilate(dstCh.get(2), dstCh.get(2), element, new Point(-1,-1), 10);
+        //Imgproc.adaptiveThreshold(dstCh.get(2), dstCh.get(2), 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 521, 0);
+        //Imgproc.morphologyEx(dstCh.get(2), dstCh.get(2), Imgproc.MORPH_OPEN, element, new Point(0,0), 2);
+        //Imgproc.dilate(dstCh.get(2), dstCh.get(2), element, new Point(-1,-1), 10);
 
-        Core.merge(dstCh, ret);
+        int numOfMats = 16;
 
+        Mat[] mats = new Mat[numOfMats];
+        int minRows = 1000000000;
+        int minCols = 1000000000;
+        for(int i = 0; i<numOfMats; i++){
+            int randomCh = new Random().nextInt(3); //int randomNum = rand.nextInt((max - min) + 1) + min;
+            int randomChOff = new Random().nextInt(3);
+            int randomChOff2 = new Random().nextInt(3);
+            int randomSn = new Random().nextInt(smallSnails.size());
+            Mat m = dstCh.get(randomCh).submat(smallSnails.get(randomSn).rect);
+            mats[i] = new Mat();
+            m.copyTo(mats[i]);
+            List<Mat> mergeList = new ArrayList<>(3);
+            mergeList.add(mats[i]);
+            mergeList.add(mats[i]);
+            mergeList.add(mats[i]);
+            mergeList.set(randomChOff, new Mat(mats[i].size(), mats[i].type()));
+            if(new Random().nextBoolean()){
+                mergeList.set(randomChOff2, new Mat(mats[i].size(), mats[i].type()));
+            }
+            Core.merge(mergeList, mats[i]);
+            if(mats[i].rows() < minRows) minRows = mats[i].rows();
+            if(mats[i].cols() < minCols) minCols = mats[i].cols();
+        }
+
+        List<List<Mat>> colsMat = new ArrayList<>();
+        List<Mat> outMat = new ArrayList<>();
+        //int i = 0;
+        for(int c = 0; c<numOfMats/2; c++) {
+            colsMat.add(new ArrayList<Mat>());
+            outMat.add(new Mat());
+            for (int r = 0; r < numOfMats/2; r++) {
+                //i = r + c;
+                int i = new Random().nextInt(mats.length);
+                Imgproc.resize(mats[i], mats[i], new Size(minCols, minRows));
+                colsMat.get(c).add(mats[i]);
+            }
+            Core.vconcat(colsMat.get(c), outMat.get(c));
+        }
+        Core.hconcat(outMat, ret);
+//        Core.merge(dstCh, ret);
 //        Imgproc.cvtColor(ret, ret, Imgproc.COLOR_BGR2GRAY);
 //        Imgproc.threshold(ret, ret, 0, 255, Imgproc.THRESH_BINARY_INV);
 //        Imgproc.morphologyEx(ret, ret,Imgproc.MORPH_CLOSE, element );
