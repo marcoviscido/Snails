@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.UUID;
 
 import it.unipg.studenti.ai.snails.utils.Helpers;
+import it.unipg.studenti.ai.snails.utils.Helpers2;
 
 public class ElabActivity extends AppCompatActivity {
     boolean first = true;
@@ -121,7 +122,7 @@ public class ElabActivity extends AppCompatActivity {
 
         protected ArrayList<Bitmap> doInBackground(Mat... mats) {
             ArrayList<Bitmap> ret = new ArrayList();
-            Mat[] imgProcessed = Helpers.findROI(mats[0]);
+            Mat[] imgProcessed = Helpers2.findROI(mats[0]);
 
             //Bitmap.Config bitmapConfig = Bitmap.Config.ARGB_8888;
             Bitmap.Config bitmapConfig = Bitmap.Config.RGB_565;
